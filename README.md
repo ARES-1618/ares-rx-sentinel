@@ -5,7 +5,7 @@
 [![Status](https://img.shields.io/badge/Status-Tapeout--Ready%20%7C%20Competition--Ready-brightgreen)](#)
 [![DRC](https://img.shields.io/badge/DRC-0%20Active%20Violations%20(Clean)-success)](#)
 [![LVS](https://img.shields.io/badge/LVS-100%25%20Match%20(758%2F758)-success)](#)
-[![Power](https://img.shields.io/badge/Power-50.90%20nW%20%40%2020%20kHz-orange)](#)
+[![Power](https://img.shields.io/badge/Power-57.90%20nW%20%40%2020%20kHz-orange)](#)
 
 ---
 
@@ -33,8 +33,8 @@ ARES-RX Sentinel verifies the discrete temporal intervals of Manchester pulses (
 | **Global Routing Congestion** | **0.00% overcongested GCells** | FastRoute: Max H $81.25\%$, Max V $65.22\%$ |
 | **DRC Conformance** | **0 Active Manufacturing Violations** | Dual-Engine: Magic v8.3.678 & KLayout v0.30.0 Clean |
 | **LVS Conformance** | **100% Match (758 / 758 gates)** | Netgen v1.5.133 SPICE vs Post-route Netlist |
-| **Static Timing (STA)** | Setup Slack $+11.88\,\text{ns}$, Hold $+0.42\,\text{ns}$ | $F_{\max} \approx 123.7\,\text{MHz}$ under $50\,\text{MHz}$ stress clock |
-| **Operating Power** | $\mathbf{50.90\,\text{nW}}$ @ $20\,\text{kHz}$ ($1.8\,\text{V}$) | Workload-derived ($\alpha = 0.075$, duty 0.50); net overhead $+9.28\,\text{nW}$ |
+| **Static Timing (STA)** | Setup Slack $+11.88\,\text{ns}$, Hold $+0.42\,\text{ns}$ | $F_{\max} \approx 123.15\,\text{MHz}$ under $50\,\text{MHz}$ stress clock |
+| **Operating Power** | $\mathbf{57.90\,\text{nW}}$ @ $20\,\text{kHz}$ ($1.8\,\text{V}$) | Authoritative VCD workload estimate (+12.70 nW overhead; 50.90 nW static sweep in TT08 portal) |
 
 ---
 
