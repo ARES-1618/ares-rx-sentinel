@@ -1,0 +1,46 @@
+# ==============================================================================
+# ARES-RX Sentinel — Authoritative Production .gitignore
+# System & Organization: ARES SEMIKONDUKTOR TECHNOLOGY
+# Upstream Repository: https://github.com/ARES-1618/ares-rx-sentinel.git
+# ==============================================================================
+
+# --- Quarantine & Archive Directories ---
+99_Quarantine/
+99_Archive/
+
+# --- Multi-Agent Orchestration & Scratch ---
+.agents/
+
+# --- EDA & Simulation Transients ---
+*.vcd
+*.fst
+*.lxt
+*.lxt2
+*.vvp
+a.out
+
+# --- Physical Extraction Scratch Artifacts ---
+*.ext
+
+# --- Python Ephemeral Bytecode & Caches ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Intermediate Logs (Whitelisting Official Audit Logs) ---
+*.log
+!04_Verification/**/results/*.log
+!05_ASIC_Synthesis/**/results/*.log
+!05_ASIC_Synthesis/**/results/**/*.log
+
+# --- Editor, OS & Temporary Files ---
+*.tmp
+*.swp
+*.swo
+*~
+desktop.ini
+Thumbs.db
+.DS_Store

@@ -1,0 +1,23 @@
+# ==============================================================================
+# ARES-RX Sentinel — Milestone M5-F Final Cryptographic Seal & Provenance Binding
+# Authority: Technical Architect / Research Direction (WO-2026-FINAL-AUDIT-006)
+# Standard: SHA-256 (FIPS 180-4)
+# Repository: https://github.com/Goldcode1618/tt08-ares-sentinel.git
+# Head Commit SHA: a748738cf665e63bc9c215748ee5bead18422665
+# Git Tree SHA-1: 4bd810d39c4968e376843287a277080976e337bc
+# Branch: main
+# Remote CI Execution: Run 36320019363 (gds=PASS), Run 36320019357 (test=PASS)
+# Timestamp: 2026-09-27T21:00:00+07:00
+# ==============================================================================
+
+# Tapeout Deliverables (Preserved exactly from initial commit dfc7472)
+838febd0c5942fcaca74b9751cb24dec7e5fc14b56d71e8e1d0a27d6190b1ba9 *gds/tt_um_ares_sentinel_project.gds
+ccd4768396aa71db6112a12de70985416f65c9d9acf95f0ef2555116864529f8 *runs/final/top_routed.def
+bcab7b63e27c2869ba845d875b2ab49d0a7fdfa4047e6ffe93dafe821986aa2e *runs/final/top_routed.spef
+f88c3712d08487612462d5288bf56506057d67b654235b1d2fb053bdd3804c80 *runs/final/top_routed.v
+a20b570e89511a221e05005778885702fe45651d024f178f7463ee1f0fe0ff82 *info.yaml
+0888d516933a06a5db558d7597fd8339dda1cc495ceacff425d1aec93b213085 *docs/info.md
+
+# Remote Verification Workflows (Proven at commit a748738cf665e63bc9c215748ee5bead18422665)
+e8592dfb65eebff6257dd6f88532ac0de0a4d18ffc2fa3aee43ebb0582594818 *.github/workflows/gds.yaml
+e2384a024981be5e3e8f457c5f2fe5b8954af4f7ff085e0d0b816870b38093fa *.github/workflows/test.yaml

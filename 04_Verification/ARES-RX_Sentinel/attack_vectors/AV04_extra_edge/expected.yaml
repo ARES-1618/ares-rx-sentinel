@@ -1,0 +1,18 @@
+vector_id: AV04
+name: extra_edge_bouncing
+threat_class: digital_timing_glitch_split
+stimulus:
+  sub_pulse_duration_cycles: 4
+  sub_pulse_us: 200.0
+baseline_expected:
+  state_transition: premature_clocking
+  tamper_detected: false
+  output_isolated: false
+sentinel_expected:
+  layer_tripped: Layer_1_Temporal_Integrity
+  fault_code: "3'b001"
+  temporal_fault: true
+  tamper_alert: true
+  tamper_alert_sticky: true
+  parallel_out: 0x00
+  acceptance_status: PASS

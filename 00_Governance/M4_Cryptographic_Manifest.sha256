@@ -1,0 +1,22 @@
+# ==============================================================================
+# ARES-RX Sentinel — Milestone M4 Content-Addressed Cryptographic Freeze Manifest
+# Authority: Technical Architect / Research Direction
+# Standard: SHA-256 (FIPS 180-4)
+# Timestamp: 2026-09-27T14:26:37+07:00
+# Purpose: Cryptographic immutability seal for all M4 synthesizable RTL modules
+# ==============================================================================
+
+# Layer-1: Temporal Integrity Sentinel (Milestone M1 Baseline)
+1a81438d4a21d2bd9a993e9e29ca67f9d89441abacf04b5183d1a42b4fd50121 *ares_timing_sentinel.v
+
+# Layer-3: Hardware Fail-Closed Isolation Subsystem (Milestone M2 Baseline)
+97a4c0a11f4b21711a6dc569caa1f993d72251db1105d8f5c263f3a98df3904a *ares_fault_latch.v
+dc590938d3be8af2a181f6f11b2ddb815263e8d824d4f33e117a500722e14fe7 *ares_isolation_gate.v
+a03c9502de512a89225fb13a048136bf2acb13f6d6cdb4166e9eeaf23c561767 *ares_isolation_l3.v
+
+# Layer-2: Frame Syntax Integrity & Upstream Priority Arbiter (Milestone M3 Baseline)
+cf38b67bc8910f3d9837cec47bc61d38fc3e577ca99cd71e97685c7638dc4fb4 *ares_frame_fsm.v
+e7016fa50ffa35f179fb32adf9773dbf19417c5e7ca9b3886e4c170cbc4b0f72 *ares_fault_arbiter.v
+
+# Integrated Demarcation Top-Level Wrapper (Milestone M4 Baseline)
+abad4a47a1917931dbe136004b4480a1ad78213451194f9e9ad2526bab9e6c8a *ares_sentinel_top.v

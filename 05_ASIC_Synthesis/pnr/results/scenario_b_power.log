@@ -1,0 +1,57 @@
+OpenSTA 2.0.17 GITDIR-NOT Copyright (c) 2019, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+================================================================================
+DESIGN: Baseline (tt07-bep-decode in TT08) (tt_um_dusterthefirst_project)
+================================================================================
+>>> FREQ: 20 kHz (T = 50000 ns) | Scenario B: Workload-Derived (alpha = 0.075, duty = 0.5)
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power
+----------------------------------------------------------------
+Sequential             0.00e+00   7.45e-09   1.24e-09   8.69e-09  20.9%
+Combinational          0.00e+00   3.17e-08   1.28e-09   3.29e-08  79.1%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  0.00e+00   3.91e-08   2.52e-09   4.16e-08 100.0%
+                           0.0%      93.9%       6.1%
+>>> FREQ: 50 MHz (T = 20 ns) | Scenario B: Workload-Derived (alpha = 0.075, duty = 0.5)
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power
+----------------------------------------------------------------
+Sequential             0.00e+00   1.86e-05   1.24e-09   1.86e-05  19.1%
+Combinational          0.00e+00   7.92e-05   1.28e-09   7.92e-05  80.9%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  0.00e+00   9.78e-05   2.52e-09   9.78e-05 100.0%
+                           0.0%     100.0%       0.0%
+================================================================================
+DESIGN: Sentinel Top Integrated (tt_um_ares_sentinel_project)
+================================================================================
+>>> FREQ: 20 kHz (T = 50000 ns) | Scenario B: Workload-Derived (alpha = 0.075, duty = 0.5)
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power
+----------------------------------------------------------------
+Sequential             0.00e+00   8.78e-09   1.61e-09   1.04e-08  20.4%
+Combinational          0.00e+00   3.90e-08   1.48e-09   4.05e-08  79.6%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  0.00e+00   4.78e-08   3.10e-09   5.09e-08 100.0%
+                           0.0%      93.9%       6.1%
+>>> FREQ: 50 MHz (T = 20 ns) | Scenario B: Workload-Derived (alpha = 0.075, duty = 0.5)
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power
+----------------------------------------------------------------
+Sequential             0.00e+00   2.30e-05   1.61e-09   2.30e-05  19.0%
+Combinational          0.00e+00   9.84e-05   1.48e-09   9.84e-05  81.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  0.00e+00   1.21e-04   3.10e-09   1.21e-04 100.0%
+                           0.0%     100.0%       0.0%
+Saving command history

@@ -1,0 +1,12 @@
+# ARES-RX Sentinel — Stage M6 Demonstration and Deliverables Cryptographic Manifest
+# Generated: 2026-09-27
+# Standard: SHA-256 (64 hex characters)
+# Scope: Interactive Hardware Demonstration Suite, Architectural Figures, Peruri Proposal, and Pitch Deck
+
+b38a4a8a83f98eb0d5f4029ff5ff4f4f6712775cbecb503f16cae1e9bc265353  ARES-RX_Sentinel/demo/ares_hardware_demo.py
+5445e2a5bcdd044838cab0b8690fdbd8206454ea11a183447dc3cc322dae075c  ARES-RX_Sentinel/figures/01_security_architecture.md
+3f28539f3d8bf56dd0de7b0313222dd2913f37719b39b3809ec3799c3ad6a43a  ARES-RX_Sentinel/figures/02_discrete_timing_boundary.md
+9a8fb6073340c5ad22db7d82b5e1e3b294edf2040cfa92fb482359b9673398fa  ARES-RX_Sentinel/figures/03_protocol_fsm_state_diagram.md
+8d4dd8fc96862872af70c85d18dfc8f45ffb0ffcba7e8e8c71418796d3714d95  ARES-RX_Sentinel/figures/04_sky130_tt08_silicon_floorplan.md
+89d86857661230c8a20401960005bb69f4c3adc01e33ea48f15dfb36968d57ab  ARES-RX_Sentinel/presentation/ARES_Sentinel_Peruri_Innovation_Proposal.md
+5becb6bd1e3f59aea44f0c8061c2af58ad8f4389f6b163d32628744aeecf8805  ARES-RX_Sentinel/presentation/ARES_Sentinel_Pitch_Deck.md

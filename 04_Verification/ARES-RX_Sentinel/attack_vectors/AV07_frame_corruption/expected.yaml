@@ -1,0 +1,20 @@
+vector_id: AV07
+name: frame_protocol_corruption
+threat_class: protocol_syntax_violation
+stimulus:
+  timing_valid: true
+  preamble_valid: false
+baseline_expected:
+  state_transition: fails_to_trip_validations
+  tamper_detected: false
+  output_isolated: false
+sentinel_expected:
+  layer_tripped: Layer_2_Frame_Integrity
+  temporal_fault: false
+  protocol_fault: true
+  v_physical: true
+  v_protocol: false
+  v_trusted: false
+  tamper_alert: true
+  parallel_out: 0x00
+  acceptance_status: PASS
