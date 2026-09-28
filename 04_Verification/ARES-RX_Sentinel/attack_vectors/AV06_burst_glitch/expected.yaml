@@ -1,0 +1,18 @@
+vector_id: AV06
+name: receiver_noise_agc_hash_disturbance
+threat_class: digital_noise_hash_disturbance
+stimulus:
+  pulse_lengths: "[1, 2, 3, 4] samples"
+  count: 50
+baseline_expected:
+  state_transition: continuous_reset_thrashing
+  tamper_detected: false
+  output_isolated: false
+sentinel_expected:
+  layer_tripped: Layer_1_Temporal_Integrity
+  fault_code: "3'b001"
+  temporal_fault: true
+  tamper_alert: true
+  tamper_alert_sticky: true
+  parallel_out: 0x00
+  acceptance_status: PASS

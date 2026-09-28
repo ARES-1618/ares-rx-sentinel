@@ -1,0 +1,182 @@
+
+18. Printing statistics.
+
+=== $paramod\ares_isolation_gate\DATA_WIDTH=s32'00000000000000000000000000001000 ===
+
+   Number of wires:                  6
+   Number of wire bits:             20
+   Number of public wires:           6
+   Number of public wire bits:      20
+   Number of ports:                  6
+   Number of port bits:             20
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  2
+     $mux                            2
+
+=== $paramod\ares_isolation_l3\DATA_WIDTH=s32'00000000000000000000000000001000 ===
+
+   Number of wires:                 11
+   Number of wire bits:             29
+   Number of public wires:          11
+   Number of public wire bits:      29
+   Number of ports:                 11
+   Number of port bits:             29
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  2
+     $paramod\ares_isolation_gate\DATA_WIDTH=s32'00000000000000000000000000001000      1
+     ares_fault_latch                1
+
+=== ares_fault_arbiter ===
+
+   Number of wires:                  8
+   Number of wire bits:             16
+   Number of public wires:           6
+   Number of public wire bits:      12
+   Number of ports:                  6
+   Number of port bits:             12
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  4
+     $mux                            4
+
+=== ares_fault_latch ===
+
+   Number of wires:                  8
+   Number of wire bits:             12
+   Number of public wires:           6
+   Number of public wire bits:      10
+   Number of ports:                  6
+   Number of port bits:             10
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  4
+     $adffe                          2
+     $not                            1
+     $reduce_and                     1
+
+=== ares_frame_fsm ===
+
+   Number of wires:                114
+   Number of wire bits:            246
+   Number of public wires:          15
+   Number of public wire bits:      27
+   Number of ports:                 10
+   Number of port bits:             20
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                109
+     $add                            1
+     $adff                           2
+     $adffe                          5
+     $eq                             4
+     $ge                             3
+     $le                             4
+     $logic_and                      8
+     $logic_not                      3
+     $mux                           50
+     $ne                            10
+     $pmux                           6
+     $reduce_and                     5
+     $reduce_bool                    2
+     $shiftx                         3
+     $sub                            3
+
+=== ares_sentinel_top ===
+
+   Number of wires:                 35
+   Number of wire bits:             73
+   Number of public wires:          33
+   Number of public wire bits:      71
+   Number of ports:                 24
+   Number of port bits:             53
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 11
+     $adff                           1
+     $and                            2
+     $logic_not                      2
+     $mux                            2
+     $paramod\ares_isolation_l3\DATA_WIDTH=s32'00000000000000000000000000001000      1
+     ares_fault_arbiter              1
+     ares_frame_fsm                  1
+     ares_timing_sentinel            1
+
+=== ares_timing_sentinel ===
+
+   Number of wires:                 86
+   Number of wire bits:            148
+   Number of public wires:          18
+   Number of public wire bits:      35
+   Number of ports:                 11
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 81
+     $add                            1
+     $adffe                          7
+     $eq                             3
+     $ge                             4
+     $gt                             2
+     $le                             2
+     $logic_and                      4
+     $logic_not                      1
+     $lt                             3
+     $mux                           32
+     $ne                             8
+     $or                             2
+     $pmux                           4
+     $reduce_and                     4
+     $reduce_bool                    3
+     $reduce_or                      1
+
+=== design hierarchy ===
+
+   ares_sentinel_top                 1
+     $paramod\ares_isolation_l3\DATA_WIDTH=s32'00000000000000000000000000001000      1
+       $paramod\ares_isolation_gate\DATA_WIDTH=s32'00000000000000000000000000001000      1
+       ares_fault_latch              1
+     ares_fault_arbiter              1
+     ares_frame_fsm                  1
+     ares_timing_sentinel            1
+
+   Number of wires:                268
+   Number of wire bits:            544
+   Number of public wires:          95
+   Number of public wire bits:     204
+   Number of ports:                 74
+   Number of port bits:            165
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                207
+     $add                            2
+     $adff                           3
+     $adffe                         14
+     $and                            2
+     $eq                             7
+     $ge                             7
+     $gt                             2
+     $le                             6
+     $logic_and                     12
+     $logic_not                      6
+     $lt                             3
+     $mux                           90
+     $ne                            18
+     $not                            1
+     $or                             2
+     $pmux                          10
+     $reduce_and                    10
+     $reduce_bool                    5
+     $reduce_or                      1
+     $shiftx                         3
+     $sub                            3
+

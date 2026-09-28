@@ -1,0 +1,151 @@
+
+6. Printing statistics.
+
+=== data_multiplex ===
+
+   Number of wires:                 26
+   Number of wire bits:            125
+   Number of public wires:          14
+   Number of public wire bits:     113
+   Number of ports:                  7
+   Number of port bits:             17
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 14
+     $eq                            11
+     $logic_not                      1
+     $pmux                           1
+     serial_decode                   1
+
+=== data_validate ===
+
+   Number of wires:                  9
+   Number of wire bits:            104
+   Number of public wires:           9
+   Number of public wire bits:     104
+   Number of ports:                  5
+   Number of port bits:            100
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  4
+     $eq                             4
+
+=== edge_detect ===
+
+   Number of wires:                  8
+   Number of wire bits:              8
+   Number of public wires:           6
+   Number of public wire bits:       6
+   Number of ports:                  5
+   Number of port bits:              5
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  5
+     $and                            2
+     $logic_not                      2
+     $sdff                           1
+
+=== serial_decode ===
+
+   Number of wires:                 29
+   Number of wire bits:            499
+   Number of public wires:          20
+   Number of public wire bits:     300
+   Number of ports:                 12
+   Number of port bits:            101
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 15
+     $adffe                          3
+     $and                            1
+     $logic_and                      1
+     $mux                            4
+     $ne                             1
+     $not                            1
+     $reduce_and                     3
+     data_validate                   1
+
+=== state_machine ===
+
+   Number of wires:                 51
+   Number of wire bits:            111
+   Number of public wires:          17
+   Number of public wire bits:      25
+   Number of ports:                  8
+   Number of port bits:              8
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 44
+     $add                            1
+     $eq                             3
+     $ge                             2
+     $gt                             1
+     $logic_not                      1
+     $mux                           17
+     $ne                             5
+     $not                            1
+     $pmux                           4
+     $reduce_and                     2
+     $reduce_or                      2
+     $sdffe                          5
+
+=== tt_um_dusterthefirst_project ===
+
+   Number of wires:                 22
+   Number of wire bits:             67
+   Number of public wires:          19
+   Number of public wire bits:      64
+   Number of ports:                  8
+   Number of port bits:             43
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  7
+     $and                            1
+     $logic_and                      1
+     $logic_not                      2
+     data_multiplex                  1
+     edge_detect                     1
+     state_machine                   1
+
+=== design hierarchy ===
+
+   tt_um_dusterthefirst_project      1
+     data_multiplex                  1
+       serial_decode                 1
+         data_validate               1
+     edge_detect                     1
+     state_machine                   1
+
+   Number of wires:                145
+   Number of wire bits:            914
+   Number of public wires:          85
+   Number of public wire bits:     612
+   Number of ports:                 45
+   Number of port bits:            274
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 84
+     $add                            1
+     $adffe                          3
+     $and                            4
+     $eq                            18
+     $ge                             2
+     $gt                             1
+     $logic_and                      2
+     $logic_not                      6
+     $mux                           21
+     $ne                             6
+     $not                            2
+     $pmux                           5
+     $reduce_and                     5
+     $reduce_or                      2
+     $sdff                           1
+     $sdffe                          5
+

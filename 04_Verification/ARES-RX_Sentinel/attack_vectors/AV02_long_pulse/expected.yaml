@@ -1,0 +1,24 @@
+vector_id: AV02
+name: long_gap_ambiguity_test
+threat_class: digital_timing_gap_ambiguity
+subvectors:
+  AV02_A_missing_edge:
+    description: "Signal resumes after an active gap of 35 cycles"
+    gap_duration_cycles: 35
+    gap_duration_us: 1750.0
+    fsm_sequence: "ACTIVE -> LONG_GAP_PENDING -> FAULT"
+    temporal_fault: true
+    fault_code: "3'b011"
+    tamper_alert: true
+    tamper_alert_sticky: true
+    parallel_out: 0x00
+    acceptance_status: PASS
+  AV02_B_packet_termination:
+    description: "Silence persists beyond N_EOF without new edges"
+    silence_duration_cycles: 64
+    silence_duration_us: 3200.0
+    fsm_sequence: "ACTIVE -> LONG_GAP_PENDING -> IDLE"
+    temporal_fault: false
+    tamper_alert: false
+    parallel_out_isolated: false
+    acceptance_status: PASS

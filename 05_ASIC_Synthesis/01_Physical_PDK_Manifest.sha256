@@ -1,0 +1,14 @@
+# SkyWater 130nm Physical PDK Asset Cryptographic Manifest
+# Source: Volare enabled commit cd1748bb197f9b7af62a54507de6624e30363943 (Tiny Tapeout TT08 reference)
+# Work Order: WO-2026-M5-F-001
+# Generated: 2026-09-27T16:18:00+07:00
+
+8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135 *sky130_fd_sc_hd__tt_025C_1v80.lib
+1a18b353fb5457caf0eca5b3cb28b2c0c9bbacdbbdeee7c4fc64a115932066c2 *sky130_fd_sc_hd__nom.tlef
+cf8bcac8e831cff18c22a80999af3a97c8247028cd7dbbcdd8e3b73f725069ec *sky130_fd_sc_hd.lef
+0142a10a28ae6393b93959b241eea3396415cffcf1a7fdc93a259abab4cb133c *sky130_fd_sc_hd.gds
+04d9521207abc0e38e4343b6cae8d3463bfd1217968e9906df40847d160e76cc *sky130A.tech
+f1c5c37a6e6a341aed12f0cfaa69ca75b9d5771b03fb61c5112365c67dc28219 *sky130A.magicrc
+1bb40f342f949b699d3e5c49323aff8c4816cb9c7e85b5d8dc6c180926fb7010 *sky130A_setup.tcl
+8cd3aaffa000de15cc7a29b73dfdcbce458ddf778aa743ebfaaa56ce08176c90 *tt_block_1x1_pg.def
+682de2d5ceba1fffbdd58ee3033b2ab89ac81ced4ad3f51406f77a05ec4bca8b *rules.openrcx.sky130A.nom.spef_extractor
