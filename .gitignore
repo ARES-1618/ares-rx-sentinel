@@ -44,3 +44,25 @@ htmlcov/
 desktop.ini
 Thumbs.db
 .DS_Store
+
+# --- Monorepo folders (preserved in branch 'monorepo') ---
+00_Governance/
+01_Proposal/
+01_Vision_and_Blueprints/
+02_Documentation/
+02_Journal/
+02_References/
+03_Abstract/
+03_Core_Projects/
+04_Research_Control/
+04_Verification/
+05_ASIC_Synthesis/
+06_Demonstration/
+07_Presentation/
+08_Slides/
+build_docx_deliverables.py
+verify_publication_consistency.py
+ARES_Publication_Consistency_Audit.md
+Makefile
+push_to_github.bat
+

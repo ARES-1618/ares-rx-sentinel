@@ -1,2 +1,0 @@
-pytest==8.1.1
-cocotb @ git+https://github.com/cocotb/cocotb@381502c2
