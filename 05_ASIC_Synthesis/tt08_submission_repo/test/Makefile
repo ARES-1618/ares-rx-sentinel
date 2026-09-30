@@ -14,7 +14,9 @@ PROJECT_SOURCES = \
     ares_isolation_l3.v \
     edge_detect.v \
     state_machine.v \
-    data_multiplex.v
+    data_multiplex.v \
+    serial_decode.v \
+    data_validate.v
 
 COMPILE_ARGS += -g2012 -I$(SRC_DIR)
 
