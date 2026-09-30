@@ -1,5 +1,4 @@
-`include "data_validate.v"
-
+// Module data_validate is provided separately in multi-file synthesis
 module serial_decode (
   input wire reset_n,
   input wire clock,

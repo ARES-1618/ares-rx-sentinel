@@ -1,5 +1,4 @@
-`include "serial_decode.v"
-
+// Module serial_decode is provided separately in multi-file synthesis
 module data_multiplex (
     input wire reset_n,
     input wire clock,
