@@ -1,7 +1,0 @@
-{
-    "verilog.linting.linter": "verilator",
-    "verilog.linting.verilator.arguments": "-Wall",
-    "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.autoImportCompletions": true,
-    "python.defaultInterpreterPath": "tabbypy3"
-}
