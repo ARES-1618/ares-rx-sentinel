@@ -1,0 +1,2553 @@
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ARES-RX Sentinel — Silicon-Level Trusted Digital Reception Boundary</title>
+<!-- KaTeX CSS & JS for Mathematical Formulas -->
+<link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4RtzZRaFgdEe5SLFhD4BfZsG7DIZg1EjDcIpIsBSArEMJkG0" rel="stylesheet"/>
+<script crossorigin="anonymous" defer="" integrity="sha384-/pjxvpYFHWJ2SAdFkRm8bTBnLY1N0iIQALhupPOvJx1mGSUoEXNHMjLvLalAZZI" src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+<!-- Mermaid.js for Dynamic Architecture Flowcharts -->
+<script crossorigin="anonymous" integrity="sha384-Iua3Y/9hPODGMgxLcJIEY4GEEBb0Z2Y+S8qfFIQEIbERBpXERcBKu/TM4t8C6yC" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+    /* ==========================================================================
+       DARK CYBERSECURITY THEME VARIABLES & CORE TYPOGRAPHY
+       ========================================================================== */
+    :root {
+      /* Background Hierarchy */
+      --bg-primary: #0a0f1e;        /* Deep space black - canvas */
+      --bg-slide: #0d1529;          /* Dark navy - active slide container */
+      --bg-card: #131f35;           /* Card background */
+      --bg-card-hover: #1a2a47;     /* Hover card */
+      --bg-code: #070b14;           /* RTL code & console */
+      --bg-pill: rgba(0, 212, 255, 0.08);
+
+      /* Accent Neon Palette */
+      --accent-cyan: #00d4ff;       /* Primary accent */
+      --accent-green: #39ff14;      /* Metrics & success */
+      --accent-orange: #ff6b35;     /* Fault & alert */
+      --accent-yellow: #ffd700;     /* Gold highlights */
+      --accent-red: #ff3366;        /* Attack traps */
+
+      /* Text Contrast */
+      --text-primary: #e8f4f8;      /* Primary text (high contrast) */
+      --text-muted: #7a9bb5;        /* Secondary annotations */
+      --text-dim: #43627d;          /* Subdued notes */
+
+      /* Borders & Glow Effects */
+      --border-glow: rgba(0, 212, 255, 0.3);
+      --border-glow-gold: rgba(255, 215, 0, 0.4);
+      --border-glow-alert: rgba(255, 107, 53, 0.4);
+      --card-border: 1px solid rgba(0, 212, 255, 0.16);
+      --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+
+      /* Font Families */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Subtle background grid pattern */
+    #deck-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(rgba(0, 212, 255, 0.03) 1px, var(--bg-primary) 1px);
+      background-size: 36px 36px, 18px 18px;
+      background-position: 0 0, 9px 9px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Progress Bar */
+    .top-progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      z-index: 1000;
+    }
+    .top-progress-fill {
+      height: 100%;
+      width: 5.26%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      box-shadow: 0 0 12px var(--accent-cyan);
+      transition: width 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       SLIDE CONTAINER & TRANSITIONS
+       ========================================================================== */
+    .slide-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: calc(100vh - 3.75rem);
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      max-width: 1720px;
+      margin: 0 auto;
+      height: 100%;
+      padding: 1.5rem 2.75rem 1rem 2.75rem;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(18px);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.4s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 212, 255, 0.3) transparent;
+    }
+
+    .slide::-webkit-scrollbar {
+      width: 6px;
+    }
+    .slide::-webkit-scrollbar-thumb {
+      background: rgba(0, 212, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      z-index: 10;
+    }
+
+    /* Slide 1 immediate render (no flash) */
+    #slide-1.active {
+      transition: none;
+    }
+
+    /* ==========================================================================
+       HEADER & BADGES
+       ========================================================================== */
+    .slide-header {
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .badge-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+      border: 1px solid transparent;
+      text-transform: uppercase;
+    }
+    .pill-cyan {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: rgba(0, 212, 255, 0.4);
+      color: var(--accent-cyan);
+    }
+    .pill-green {
+      background: rgba(57, 255, 20, 0.1);
+      border-color: rgba(57, 255, 20, 0.4);
+      color: var(--accent-green);
+    }
+    .pill-gold {
+      background: rgba(255, 215, 0, 0.12);
+      border-color: rgba(255, 215, 0, 0.45);
+      color: var(--accent-yellow);
+    }
+    .pill-orange {
+      background: rgba(255, 107, 53, 0.1);
+      border-color: rgba(255, 107, 53, 0.4);
+      color: var(--accent-orange);
+    }
+    .pill-red {
+      background: rgba(255, 51, 102, 0.1);
+      border-color: rgba(255, 51, 102, 0.4);
+      color: var(--accent-red);
+    }
+
+    .slide-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-yellow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.01em;
+    }
+
+    .slide-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* ==========================================================================
+       BODY LAYOUT & CARDS
+       ========================================================================== */
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.15rem;
+    }
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.15rem;
+    }
+    .grid-4col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: var(--card-border);
+      border-radius: 10px;
+      padding: 1.35rem 1.6rem;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px var(--border-glow);
+    }
+    .card-gold:hover {
+      border-color: var(--accent-yellow);
+      box-shadow: 0 0 20px var(--border-glow-gold);
+    }
+    .card-alert:hover {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 20px var(--border-glow-alert);
+    }
+
+    .card-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      letter-spacing: -0.01em;
+    }
+    .card-title.cyan { color: var(--accent-cyan); }
+    .card-title.gold { color: var(--accent-yellow); }
+    .card-title.green { color: var(--accent-green); }
+    .card-title.orange { color: var(--accent-orange); }
+    .card-title.red { color: #ff3366; }
+
+
+    .card-text {
+      font-size: 0.96rem;
+      color: var(--text-primary);
+      line-height: 1.48;
+      margin-bottom: 0.6rem;
+    }
+    .card-text-muted {
+      font-size: 0.89rem;
+      color: var(--text-muted);
+      line-height: 1.42;
+    }
+
+    ul.bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    ul.bullet-list li {
+      font-size: 0.94rem;
+      color: var(--text-primary);
+      line-height: 1.42;
+      position: relative;
+      padding-left: 1.1rem;
+    }
+    ul.bullet-list li::before {
+      content: '▹';
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+    }
+    ul.bullet-list li strong {
+      color: var(--accent-yellow);
+    }
+
+    /* Callouts & Notices */
+    .callout {
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin-top: 0.5rem;
+      border-left: 4px solid transparent;
+    }
+    .callout-info {
+      background: rgba(0, 212, 255, 0.08);
+      border-left-color: var(--accent-cyan);
+      color: var(--text-primary);
+    }
+    .callout-warning {
+      background: rgba(255, 107, 53, 0.09);
+      border-left-color: var(--accent-orange);
+      color: #ffc4a8;
+    }
+    .callout-epistemic {
+      background: rgba(255, 51, 102, 0.08);
+      border-left-color: var(--accent-red);
+      color: #ffd2dc;
+      border: 1px solid rgba(255, 51, 102, 0.25);
+    }
+    .callout-success {
+      background: rgba(57, 255, 20, 0.08);
+      border-left-color: var(--accent-green);
+      color: #dcffd4;
+    }
+
+    /* ==========================================================================
+       TABLES
+       ========================================================================== */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 212, 255, 0.18);
+      background: rgba(13, 21, 41, 0.6);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+    table.data-table th {
+      background: rgba(19, 31, 53, 0.95);
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 8px 11px;
+      border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+      white-space: nowrap;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    table.data-table td {
+      padding: 7px 11px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      vertical-align: middle;
+      line-height: 1.35;
+      font-size: 0.87rem;
+}
+    table.data-table tr:hover {
+      background: rgba(0, 212, 255, 0.05);
+    }
+    table.data-table tr.row-nominal {
+      background: rgba(57, 255, 20, 0.04);
+    }
+    table.data-table tr.row-fault {
+      background: rgba(255, 107, 53, 0.03);
+    }
+    table.data-table tr.row-highlight {
+      background: rgba(255, 215, 0, 0.06);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       CODE BLOCKS & VERILOG SNIPPETS
+       ========================================================================== */
+    .code-box {
+      background: var(--bg-code);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 6px;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #9cdcfe;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code-box .kw { color: #c586c0; font-weight: bold; }
+    .code-box .typ { color: #4ec9b0; }
+    .code-box .str { color: #ce9178; }
+    .code-box .num { color: #b5cea8; }
+    .code-box .cmt { color: #6a9955; font-style: italic; }
+    .code-box .hl { background: rgba(0, 212, 255, 0.15); padding: 1px 4px; border-radius: 3px; color: var(--accent-cyan); }
+
+    /* ==========================================================================
+       FORMULA & LATEX DISPLAY
+       ========================================================================== */
+    .formula-container {
+      background: rgba(10, 15, 30, 0.75);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      border-radius: 8px;
+      padding: 0.85rem 1.25rem;
+      text-align: center;
+      margin: 0.5rem 0;
+      box-shadow: inset 0 0 16px rgba(0, 212, 255, 0.05);
+    }
+
+    /* ==========================================================================
+       METRICS ROW / STAT CARDS
+       ========================================================================== */
+    .metrics-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.85rem;
+    }
+    .stat-card {
+      background: rgba(19, 31, 53, 0.8);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .stat-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 0.2rem;
+    }
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ==========================================================================
+       MERMAID & FALLBACK ARCHITECTURE CONTAINER
+       ========================================================================== */
+    .mermaid-box {
+      width: 100%;
+      height: 100%;
+      min-height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 21, 41, 0.7);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      padding: 1rem;
+      overflow: auto;
+    }
+    .mermaid-fallback {
+      display: none;
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.35;
+      color: #9cdcfe;
+      white-space: pre;
+    }
+
+    /* ==========================================================================
+       ROADMAP & PILLARS
+       ========================================================================== */
+    .roadmap-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.15rem;
+    }
+    .roadmap-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .roadmap-badge {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 0.75rem;
+    }
+    .phase-1 { background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+    .phase-2 { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .phase-3 { background: rgba(255, 215, 0, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+
+    /* ==========================================================================
+       BOTTOM CONTROL BAR & PRESENTER NOTES DRAWER
+       ========================================================================== */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3.6rem;
+      background: rgba(10, 15, 30, 0.94);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(0, 212, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 999;
+    }
+
+    .bottom-left, .bottom-center, .bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-btn {
+      background: rgba(19, 31, 53, 0.9);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--text-primary);
+      padding: 0.45rem 0.95rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(0, 212, 255, 0.15);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--border-glow);
+      color: #ffffff;
+    }
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    .nav-btn-gold {
+      border-color: rgba(255, 215, 0, 0.4);
+      color: var(--accent-yellow);
+    }
+    .nav-btn-gold:hover:not(:disabled) {
+      background: rgba(255, 215, 0, 0.15);
+      border-color: var(--accent-yellow);
+      box-shadow: 0 0 10px var(--border-glow-gold);
+    }
+
+    .slide-select {
+      background: #0d1529;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--text-primary);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      outline: none;
+    }
+    .slide-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--border-glow);
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .slide-counter strong {
+      color: var(--accent-cyan);
+    }
+
+    /* Presenter Notes Drawer */
+    #notes-drawer {
+      position: fixed;
+      bottom: 3.6rem;
+      left: 0;
+      width: 100%;
+      max-height: 250px;
+      background: rgba(7, 11, 20, 0.97);
+      backdrop-filter: blur(14px);
+      border-top: 2px solid var(--accent-yellow);
+      padding: 1rem 2.5rem;
+      overflow-y: auto;
+      z-index: 998;
+      display: none;
+      box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.7);
+    }
+    #notes-drawer.open {
+      display: block;
+    }
+    .notes-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      color: var(--accent-yellow);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .notes-content {
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #f1f8fc;
+      font-style: italic;
+    }
+
+    /* Utilities */
+    .mono { font-family: var(--font-mono); }
+    .text-cyan { color: var(--accent-cyan) !important; }
+    .text-green { color: var(--accent-green) !important; }
+    .text-gold { color: var(--accent-yellow) !important; }
+    .text-orange { color: var(--accent-orange) !important; }
+    .text-red { color: var(--accent-red) !important; }
+    .text-muted { color: var(--text-muted) !important; }
+    .font-bold { font-weight: 700; }
+    .text-xs { font-size: 0.72rem; }
+    .text-sm { font-size: 0.82rem; }
+    .text-center { text-align: center; }
+    .mt-1 { margin-top: 0.35rem; }
+    .mt-2 { margin-top: 0.7rem; }
+    .mt-3 { margin-top: 1rem; }
+
+    @media (max-height: 700px) {
+      .slide-title { font-size: 1.6rem; }
+      .card { padding: 0.85rem 1rem; }
+      .slide-body { gap: 0.65rem; }
+    }
+    @media (min-aspect-ratio: 16/9) {
+      .slide { padding: 1.5rem 3.5rem 1rem 3.5rem; }
+    }
+    @media (max-aspect-ratio: 4/3) {
+      .grid-3col { grid-template-columns: 1fr 1fr; }
+      .grid-4col { grid-template-columns: 1fr 1fr; }
+      .metrics-grid-4 { grid-template-columns: 1fr 1fr; }
+    }
+    
+    /* Grid Mode Overlay */
+    #grid-overlay { position: fixed; inset: 0; background: rgba(10,15,30,0.97); z-index: 2000; display: none; flex-wrap: wrap; gap: 1rem; padding: 2rem; overflow-y: auto; align-content: flex-start; }
+    #grid-overlay.open { display: flex; }
+    .grid-thumb { background: #131f35; border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 1rem; cursor: pointer; color: #e8f4f8; text-align: center; width: 160px; display: flex; flex-direction: column; gap: 0.4rem; transition: all 0.2s; }
+    .grid-thumb:hover, .grid-thumb.active { border-color: #00d4ff; box-shadow: 0 0 12px rgba(0,212,255,0.4); background: #1a2a47; }
+    .grid-num { font-size: 1.5rem; font-weight: 800; color: #00d4ff; font-family: monospace; }
+    .grid-label { font-size: 0.72rem; color: #7a9bb5; line-height: 1.3; }
+  </style>
+</head>
+<body>
+<div id="deck-container">
+<!-- Dynamic Top Progress Bar -->
+<div class="top-progress-container">
+<div class="top-progress-fill" id="progress-bar-fill"></div>
+</div>
+<!-- Slides Wrapper -->
+<div class="slide-wrapper">
+<!-- ========================================================================
+         SLIDE 1: COVER & IDENTITAS PROYEK
+         ======================================================================== -->
+<div class="slide active" data-title="1. Cover &amp; Identitas" id="slide-1">
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; position: relative;">
+<style>
+          @keyframes scanner {
+            0% { top: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+          }
+          .scanner-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+            animation: scanner 3s infinite linear;
+            z-index: 0;
+          }
+          @keyframes glow-pulse {
+            0% { text-shadow: 0 0 10px var(--accent-cyan); }
+            50% { text-shadow: 0 0 30px var(--accent-cyan), 0 0 10px var(--accent-yellow); }
+            100% { text-shadow: 0 0 10px var(--accent-cyan); }
+          }
+          .title-hero {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: glow-pulse 3s infinite alternate;
+            z-index: 1;
+            line-height: 1.1;
+          }
+          .subtitle-hero {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            z-index: 1;
+          }
+          .tagline-hero {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            z-index: 1;
+          }
+          .hero-footer {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            z-index: 1;
+          }
+        </style>
+<div class="scanner-line"></div>
+<h1 class="title-hero">ARES-RX SENTINEL</h1>
+<h2 class="subtitle-hero">Silicon-Level Trusted Digital Reception Boundary</h2>
+<p class="tagline-hero">Mengamankan Infrastruktur IoT Kritis Indonesia dari Tingkat Silikon</p>
+<div class="badge-strip" style="justify-content: center; z-index: 1;">
+<span class="pill pill-cyan">SkyWater 130nm</span>
+<span class="pill pill-green">TT08 Tapeout-Ready</span>
+<span class="pill pill-gold">57.90 nW</span>
+<span class="pill pill-cyan">ARES Semikonduktor</span>
+</div>
+<div class="hero-footer">
+          Dewan Juri Kompetisi Desain IC / Evaluator Peruri
+        </div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 2: EXECUTIVE SUMMARY
+         ======================================================================== -->
+<div class="slide" data-title="2. Ringkasan Eksekutif" id="slide-2">
+<div class="slide-header">
+<h2 class="slide-title">Ringkasan Eksekutif: Kesiapan Silikon &amp; Bukti Empiris</h2>
+</div>
+<div class="slide-body">
+<div class="metrics-grid-4">
+<div class="stat-card">
+<div class="stat-val text-gold">57.90 nW</div>
+<div class="stat-lbl">Konsumsi Daya (@20kHz)</div>
+</div>
+<div class="stat-card">
+<div class="stat-val text-cyan">758 Gates</div>
+<div class="stat-lbl">Standard Cells Fungsional</div>
+</div>
+<div class="stat-card">
+<div class="stat-val text-green">0 DRC / 100% LVS</div>
+<div class="stat-lbl">Integritas Geometri Silikon</div>
+</div>
+<div class="stat-card">
+<div class="stat-val text-orange">100% Detection</div>
+<div class="stat-lbl">Keberhasilan Tahan Serangan (AV01-AV08)</div>
+</div>
+</div>
+<div class="card mt-3">
+<h3 class="card-title cyan">Status Milestone Proyek</h3>
+<div class="table-container">
+<table class="data-table">
+<thead>
+<tr>
+<th>Milestone</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>M1-M6</td><td><span class="pill pill-green">SEALED/COMPLETE</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-epistemic mt-3">
+<strong>Catatan Epistemik:</strong> Metrik di atas merupakan hasil simulasi post-layout dan verifikasi formal, bukan data dari silikon fisik terfabrikasi.
+        </div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 2: PROBLEM: THE DEMODULATOR BLIND SPOT
+         ======================================================================== -->
+<div class="slide" data-title="3. Problem: Demodulator Blind Spot" id="slide-3">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-red">CELAH STRUKTURAL BASEBAND</span>
+<span class="pill pill-orange">UNSHIELDED RX_IN PATH</span>
+<span class="pill pill-cyan">3 FATAL SOFTWARE FAILURE MODES</span>
+</div>
+<h2 class="slide-title">Titik Buta Demodulator: Mengapa Software Firewall Tidak Berdaya?</h2>
+<p class="slide-subtitle">Antarmuka Baseband Digital Digital Tanpa Proteksi Fisik Membuka Akses Langsung ke Memori dan CPU Host</p>
+</div>
+<div class="slide-body grid-2col">
+<!-- Kolom Kiri: Arsitektur Blind Spot -->
+<div class="card">
+<h3 class="card-title orange"><span>⚠️</span> Anatomi Kerentanan Jalur Baseband Digital</h3>
+<p class="card-text">
+            Pada seluruh receiver radio Sub-GHz komersial (TI CC1101, Semtech SX127x, RXB6), front-end analog RF mendemodulasi gelombang elektromagnetik menjadi pulsa digital biner CMOS pada pin <code>rx_in</code>. Jalur ini dihubungkan <strong>tanpa filter fisik</strong> langsung ke pin GPIO/DMA mikrokontroler host.
+          </p>
+<div class="code-box mt-2">
+[ ARSITEKTUR KONVENSIONAL: THE UNPROTECTED BLIND SPOT ]
++-------------------+     CMOS Pulses      +---------------------------------+
+| RF Demodulator    |=====================&gt;| Host MCU / SoC                  |
+| (TI/Semtech/RXB6) | (Jalur rx_in Telanjang)|  - EXTI Interrupt Storm (100% CPU) |
+|  * Buta Keamanan  |  * Runt Glitches     |  - Buffer Overflow / Memory Bleed |
+|  * Nol Penyaringan|  * Mid-Band Desync   |  - Silent Data Corruption       |
++-------------------+                      +---------------------------------+
+                                              [ TITIK KEHANCURAN SISTEM ]</div>
+<div class="callout callout-warning mt-2">
+<strong>Akar Masalah:</strong> Demodulator RF buta terhadap konteks protokol. Setiap noise EMI transien dan injeksi paket berbahaya diteruskan mentah-mentah ke inti prosesor.
+          </div>
+</div>
+<!-- Kolom Kanan: 3 Mode Kegagalan Fatal Software -->
+<div class="card">
+<h3 class="card-title red"><span>💥</span> Tiga Mode Kegagalan Katastropik Perangkat Lunak</h3>
+<ul class="bullet-list">
+<li>
+<strong>Mode 1: Interrupt Storm &amp; CPU Exhaustion / Denial-of-Sleep</strong><br/>
+              Injeksi runt glitches berulang (&lt;400 µs) memicu ribuan External Interrupts (EXTI ISR) per detik. Beban CPU melonjak hingga 100%, thread aplikasi lumpuh (<em>CPU starvation</em>), dan daya MCU naik dari level tidur mikroampere ke 4.0–16.5 mW, menguras baterai utilitas dalam hitungan hari.
+            </li>
+<li>
+<strong>Mode 2: Buffer Overflow &amp; Memory Corruption (Heap/Stack Bleed)</strong><br/>
+              Injeksi paket termutilasi (&lt;192 bit) atau frame kelebihan muatan (&gt;192 bit) membanjiri ring-buffer DMA/UART sebelum rutin CRC software sempat dieksekusi. Memicu <em>out-of-bounds write</em>, penimpaan pointer eksekusi, dan kegagalan peripheral permanen.
+            </li>
+<li>
+<strong>Mode 3: Asynchronous Desynchronization &amp; Silent Data Corruption</strong><br/>
+              Injeksi jitter pada rentang terlarang (11–15 siklus) mengacaukan pemulihan clock (<em>bit-slip</em>). Software membaca angka meteran listrik/air atau status kunci brankas sekuriti yang korup tanpa memicu exception.
+            </li>
+</ul>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 3: KEGAGALAN SOLUSI KONVENSIONAL
+         ======================================================================== -->
+<div class="slide" data-title="4. 6-Axis Literature Gap Matrix" id="slide-4">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-gold">EVALUASI LITERATUR ILMIAH</span>
+<span class="pill pill-cyan">6-AXIS BENCHMARK</span>
+<span class="pill pill-green">ARES SENTINEL ADVANTAGE</span>
+</div>
+<h2 class="slide-title">Kegagalan Paradigma Konvensional: 6-Axis Literature Gap</h2>
+<p class="slide-subtitle">Mengapa Software ISR, Bus Firewall (TrustZone), Crypto Accelerator, dan WuRx Gagal Melindungi ULP IoT?</p>
+</div>
+<div class="slide-body">
+<div class="table-container">
+<table class="data-table">
+<thead>
+<tr>
+<th>Sumbu Evaluasi</th>
+<th>SW ISR</th>
+<th>Bus Firewall</th>
+<th>Crypto Engine</th>
+<th>WuRx</th>
+<th>ARES-RX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Lapisan Penegakan</strong></td>
+<td>Firmware ISR / Driver</td>
+<td>Bus Memori (Post-DMA)</td>
+<td>Lapisan Payload (L3/L4)</td>
+<td>Front-End Selubung RF</td>
+<td><strong class="text-cyan">Batas Serial Baseband (rx_in)</strong></td>
+</tr>
+<tr>
+<td><strong>2. Profil Konsumsi Daya</strong></td>
+<td>4.0 – 16.5 mW (Boros)</td>
+<td>50 µW – 5.0 mW</td>
+<td>1.5 – 25.0 µW</td>
+<td>20 – 100 nW (Ultra-low)</td>
+<td><strong class="text-green">57.90 nW @ 20 kHz (&lt;100 nW)</strong></td>
+</tr>
+<tr>
+<td><strong>3. Latensi Isolasi Bahaya</strong></td>
+<td>100 µs – 10 ms (OS jitter)</td>
+<td>5 – 20 siklus bus (&gt;500 ns)</td>
+<td>500 – 5,000 siklus (&gt;25 µs)</td>
+<td>10 – 50 µs (Tanpa isolasi)</td>
+<td><strong class="text-gold">Tlatch = 1 cyc (50 µs), Tisolate = 0</strong></td>
+</tr>
+<tr>
+<td><strong>4. Beban Prosesor Host</strong></td>
+<td>Tinggi (100% CPU lock)</td>
+<td>Sedang (Tabel MPU/PMP)</td>
+<td>Tinggi (Interrupt overhead)</td>
+<td>Tinggi (False wake-up flood)</td>
+<td><strong class="text-green">MURNI 0% CPU (0 Byte RAM)</strong></td>
+</tr>
+
+
+</tbody>
+</table>
+<table class="data-table mt-2"><thead><tr><th>Sumbu Evaluasi</th><th>SW ISR</th><th>Bus Firewall</th><th>Crypto Engine</th><th>WuRx</th><th>ARES-RX</th></tr></thead><tbody><tr class="row-highlight">
+<td><strong>5. Verifikasi Waktu Fisik</strong></td>
+<td>Nol (Timer SW kasar)</td>
+<td>Nol (Hanya alamat bus)</td>
+<td>Nol (Hanya payload)</td>
+<td>Kasar (Threshold analog)</td>
+<td><strong class="text-cyan">Eksplisit: NHB [8,10], NBIT [16,20]</strong></td>
+</tr><tr class="row-highlight">
+<td><strong>6. Model Integrasi</strong></td>
+<td>Modifikasi total firmware</td>
+<td>Desain ulang arsitektur SoC</td>
+<td>Key management rumit</td>
+<td>Perlu RF front-end baru</td>
+<td><strong class="text-gold">Drop-in "Bump-in-the-Wire" Mandiri</strong></td>
+</tr></tbody></table></div>
+<div class="callout callout-info mt-2">
+<strong>Kesimpulan Evaluasi Literatur:</strong> ARES-RX Sentinel adalah satu-satunya solusi yang menyatukan verifikasi domain waktu fisik gelombang, isolasi instan sub-mikrodetik, daya sub-100 nW, dan tanpa beban firmware mikrokontroler host.
+        </div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 4: MATHEMATICAL TRUST FORMULATION
+         ======================================================================== -->
+<div class="slide" data-title="5. Mathematical Trust Formulation" id="slide-5">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-gold">FONDASI MATEMATIKA</span>
+<span class="pill pill-cyan">FAIL-CLOSED FORMULATION</span>
+<span class="pill pill-green">TEMPORAL MARGIN 102.3X (20.1 dB)</span>
+</div>
+<h2 class="slide-title">Formulasi Matematika Trust Boundary</h2>
+<p class="slide-subtitle">Ortogonalitas Ruang Waktu Pulsa Manchester Diskrit &amp; Verifikasi Tata Bahasa Protokol</p>
+</div>
+<div class="slide-body grid-2col">
+<!-- Kolom Kiri: Persamaan Utama & Verifikasi Fisik -->
+<div class="card">
+<h3 class="card-title gold"><span>📐</span> Persamaan Utama Kepercayaan Silikon</h3>
+<p class="card-text">
+            Keabsahan paket ditegakkan secara mutlak melalui konjungsi logika biner ganda antara domain waktu fisik gelombang dan sintaksis tata bahasa protokol:
+          </p>
+<div class="formula-container">
+            $$\mathbf{\boxed{V_{\text{trusted}} = V_{\text{physical}} \land V_{\text{protocol}}}}$$
+          </div>
+<p class="card-text-muted mt-1">
+            Prinsip <strong>Fail-Closed Mutlak:</strong> Jika salah satu kondisi bernilai 0, maka $V_{\text{trusted}} = 0$ secara permanen, memutus transmisi ke host MCU.
+          </p>
+<h3 class="card-title cyan mt-2"><span>⏱️</span> Kepatuhan Domain Waktu Fisik ($V_{\text{physical}}$)</h3>
+<p class="card-text-muted">
+            Pada $F_{\text{clk}} = 20.00\,\text{kHz}$ ($T_{\text{clk}} = 50.0\,\mu\text{s}$), durasi antar-transisi tepi $T_k$ dikuantisasi ke pencacah register diskrit $N$:
+          </p>
+<ul class="bullet-list mt-1">
+<li><strong>Half-Bit Window ($N_{\text{HB}}$):</strong> $N \in [8, 10]\,\text{siklus} \ (400 - 500\,\mu\text{s})$ [Nominal: $N=9$].</li>
+<li><strong>Full-Bit Window ($N_{\text{BIT}}$):</strong> $N \in [16, 20]\,\text{siklus} \ (800 - 1000\,\mu\text{s})$ [Nominal: $N=18$].</li>
+<li><strong>Zona Glitch Terlarang:</strong> $N \le 7\,\text{siklus} \ (T_k \le 350\,\mu\text{s}) \implies$ Sinyal Fault Seketika.</li>
+<li><strong>Zona Desync Terlarang:</strong> $N \in [11, 15]\,\text{siklus} \ (550 - 750\,\mu\text{s}) \implies$ Sinyal Fault Seketika.</li>
+<li><strong>Zona Timeout Jeda:</strong> $N \ge 21\,\text{siklus} \ (T_k \ge 1050\,\mu\text{s}) \implies$ Status Jeda Pending.</li>
+</ul>
+</div>
+<!-- Kolom Kanan: Squelch & Margin Temporal -->
+<div class="card">
+<h3 class="card-title green"><span>🔇</span> Eliminasi Squelch &amp; Ketidaksamaan Ambang Batas</h3>
+<p class="card-text">
+            Ambang deteksi akhir paket ($N_{\text{EOF}} = 64$ siklus $= 3.20\,\text{ms}$) memisahkan desis derau acak RF (1–4 siklus) dari jeda antar-paket ($G_{\text{IFG,min}} = 6547$ siklus $= 327.35\,\text{ms}$):
+          </p>
+<div class="formula-container">
+            $$\mathbf{N_{\text{TIMEOUT}} &lt; N_{\text{EOF}} &lt; G_{\text{IFG,min}} \iff 21 &lt; 64 &lt; 6547}$$
+          </div>
+<p class="card-text text-green font-bold text-center">
+            Rasio Margin Temporal Keselamatan = 102.3× (20.1 dB)
+          </p>
+<p class="card-text-muted mt-1">
+            Margin $102.3\times$ ini menjamin Sentinel kembali bersih ke status <code>IDLE</code> jauh sebelum frame berikutnya tiba, tanpa risiko <em>false alarm</em> pada derau RF lingkungan.
+          </p>
+<h3 class="card-title orange mt-2"><span>📜</span> Formulasi Tata Bahasa Protokol ($V_{\text{protocol}}$)</h3>
+<p class="card-text-muted">
+            Struktur frame 192-bit divalidasi pada saat sampel clock pertama:
+          </p>
+<div class="code-box mt-1 text-xs">
+[Preamble: 32b 0xAAAAAAAA] || [Type1: 16b 0xD391] || [Type2: 16b 0xD391]
+|| [Constant: 32b 0x0DFFFFFE] || [Payload: 72b Telemetri] || [Trailer: 24b]</div>
+<p class="card-text-muted mt-1">
+            Jika ada deviasi bit statis atau panjang $\ne 192$ bit $\implies V_{\text{protocol}} = 0$ seketika.
+          </p>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 5: MODEL ANCAMAN (THREAT MODEL: AV01–AV08)
+         ======================================================================== -->
+<div class="slide" data-title="6. Model Ancaman (AV01–AV08)" id="slide-6">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-red">TAKSONOMI ANCAMAN SIBER-FISIK</span>
+<span class="pill pill-gold">8 VEKTOR SERANGAN KANONIK</span>
+<span class="pill pill-green">100% DETECTION RATE</span>
+<span class="pill pill-cyan">0% FALSE ALARMS</span>
+</div>
+<h2 class="slide-title">Model Ancaman Siber-Fisik: Taksonomi Vektor AV01–AV08</h2>
+<p class="slide-subtitle">Cakupan Komprehensif 8 Skenario Anomali Fisik &amp; Protokol yang Ditangkap Secara Deterministik</p>
+</div>
+<div class="slide-body">
+<div class="table-container">
+<table class="data-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Nama Serangan &amp; Stimulus</th>
+
+
+<th>Mekanisme Deteksi Silikon</th>
+<th>Respon Latch &amp; Isolasi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong class="text-red">AV01</strong></td>
+<td>Sub-Nyquist Runt Glitch<br/>Injeksi pulsa liar sempit $N \le 7$ ($N=4, 200\,\mu\text{s}$)</td>
+
+
+<td>L1 Temporal Comparator ($N &lt; 8$)</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b001</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV02</strong></td>
+<td>Mid-Band Clock Desync<br/>Pergeseran pulsa di zona terlarang $N \in [11,15]$ ($N=12$)</td>
+
+
+<td>L1 Mid-Band Detector ($10 &lt; N &lt; 16$)</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b010</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV03</strong></td>
+<td>Missing-Edge Dropout<br/>Sinyal hilang di tengah frame ($N \ge 21$) lalu menyambung</td>
+
+
+<td>L1 Long Gap Pending Trap</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b011</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV04</strong></td>
+<td>Preamble Spoofing<br/>Pola bit sinkronisasi 32-bit rusak ($\ne \texttt{0xAAAAAAAA}$)</td>
+
+
+<td>L2 Frame FSM Sample-Time Check</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b100</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV05</strong></td>
+<td>Malformed Type ID<br/>Pemalsuan nilai Type 1 / Type 2 ($\ne \texttt{0xD391}$)</td>
+
+
+<td>L2 Synchronous Dual Type Comparator</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b101</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV06</strong></td>
+<td>Constant Header Tampering<br/>Nilai konstan keamanan dirusak ($\ne \texttt{0x0DFFFFFE}$)</td>
+
+
+<td>L2 Constant Word Matcher</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b110</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV07</strong></td>
+<td>Frame Truncation Underflow<br/>Transmisi diputus sepihak sebelum 192 bit (&lt;192 bit)</td>
+
+
+<td>L2 Qualified Envelope Drop Monitor</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b111</code>, Bus <code>0x00</code></td>
+</tr>
+<tr>
+<td><strong class="text-red">AV08</strong></td>
+<td>Frame Overrun Overflow<br/>Penyerang menyuntikkan bit ekstra ke-193+ (&gt;192 bit)</td>
+
+
+<td>L2 Boundary Overrun Trap di State Complete</td>
+<td>$T_{\text{latch}}=1$, Code <code>3'b111</code>, Bus <code>0x00</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="metrics-grid-4 mt-2">
+<div class="stat-card">
+<span class="stat-val text-green">100.0%</span>
+<span class="stat-lbl">Deteksi AV01–AV08</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-cyan">0.0%</span>
+<span class="stat-lbl">False Alarm (AV00)</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-gold">10,737</span>
+<span class="stat-lbl">Siklus Jam Diuji</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-green">118,107</span>
+<span class="stat-lbl">Evaluasi Sinyal Lolos</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 6: SOLUSI: ARES-RX SENTINEL
+         ======================================================================== -->
+<div class="slide" data-title="7. Solusi: ARES-RX Sentinel" id="slide-7">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">THE SILICON BOUNCER</span>
+<span class="pill pill-gold">3-LAYER DEFENCE-IN-DEPTH</span>
+<span class="pill pill-green">ZERO CPU OVERHEAD</span>
+<span class="pill pill-orange">SUB-100 nW POWER ENVELOPE</span>
+</div>
+<h2 class="slide-title">Solusi: ARES-RX Sentinel Architecture</h2>
+<p class="slide-subtitle">"The Silicon Bouncer" — Paradigma Pertahanan Berlapis Tiga di Perbatasan Fisik Gerbang Silikon</p>
+</div>
+<div class="slide-body grid-3col">
+<!-- Layer 1 Summary -->
+<div class="card">
+<h3 class="card-title cyan"><span>🛡️</span> Layer 1: Temporal Sentinel</h3>
+<p class="card-text">
+<strong>Modul:</strong> <code>ares_timing_sentinel.v</code><br/>
+<strong>Fungsi:</strong> Mengawal integritas fisik pulsa radio secara real-time pada resolusi 50 µs (clock 20 kHz).
+          </p>
+<ul class="bullet-list">
+<li>Pencacah interval kontinu 8-bit (0..255).</li>
+<li>Komparator jendela [8,10] &amp; [16,20] siklus.</li>
+<li>FSM 4-status pelacak konteks (IDLE, ARMED, ACTIVE, LONG_GAP).</li>
+<li>Anti-squelch filter yang menahan derau awal tanpa alarm palsu.</li>
+</ul>
+</div>
+<!-- Layer 2 Summary -->
+<div class="card card-gold">
+<h3 class="card-title gold"><span>📜</span> Layer 2: Frame Syntax Monitor</h3>
+<p class="card-text">
+<strong>Modul:</strong> <code>ares_frame_fsm.v</code><br/>
+<strong>Fungsi:</strong> Pengawal tata bahasa protokol frame 192-bit (24 Byte) otonom di silikon.
+          </p>
+<ul class="bullet-list">
+<li>Pencacah bit mandiri (0..191) kebal deadlock legacy.</li>
+<li>Verifikasi seketika pada waktu sampel (Preamble 0xAAAA, Type 0xD391, Const 0x0DFFFFFE).</li>
+<li>Meloloskan 72-bit payload dinamis secara transparan.</li>
+<li>Menjebak pemotongan (&lt;192b) dan kelebihan muatan (&gt;192b).</li>
+</ul>
+</div>
+<!-- Layer 3 Summary -->
+<div class="card card-alert">
+<h3 class="card-title orange"><span>🔒</span> Layer 3: Fail-Closed Isolation</h3>
+<p class="card-text">
+<strong>Modul:</strong> <code>ares_isolation_l3.v</code><br/>
+<strong>Fungsi:</strong> Eksekutor pemutusan bus seketika dan isolasi data mutlak ke 8'h00.
+          </p>
+<ul class="bullet-list">
+<li>Priority Arbiter (prioritas L1 &gt; L2 tanpa latensi).</li>
+<li>Sticky Fault Latch (mengunci bahaya dalam <strong>Tlatch = 1 siklus</strong>).</li>
+<li>Zeroization Gate kombinatorial murni (<strong>Tisolate = 0 siklus</strong> / ~1.2 ns gate delay).</li>
+<li>Interupsi hardware <code>tamper_alert</code> ke pin MCU.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-info mt-2">
+<strong>Tiga Sifat Keunggulan Arsitektur:</strong> <strong>(1) Murni 0% Beban CPU Host</strong> (0 byte RAM, MCU tetap aman dalam mode tidur); <strong>(2) Anggaran Daya Ultra-Rendah</strong> (57.90 nW @ 20 kHz post-route estimate, &gt;20 tahun CR2032); <strong>(3) Deterministik Mutlak</strong> (reaksi dalam 1 siklus tanpa ketergantungan OS).
+      </div>
+</div>
+<!-- ========================================================================
+         SLIDE 7: LAYER 1: TEMPORAL SENTINEL
+         ======================================================================== -->
+<div class="slide" data-title="8. Layer 1: Temporal Sentinel" id="slide-8">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">Fclk = 20.00 kHz</span>
+<span class="pill pill-cyan">Sampling = 50.0 µs</span>
+<span class="pill pill-green">4-State Context FSM</span>
+<span class="pill pill-gold">Tlatch = 1 Cycle</span>
+</div>
+<h2 class="slide-title">Layer 1: Temporal Sentinel — Demarkasi Integritas Pulsa Fisik</h2>
+<p class="slide-subtitle">Sanitasi Integritas Pulsa Baseband Real-Time &amp; Penolakan Glitch Deterministik</p>
+</div>
+<div class="slide-body grid-3col">
+<!-- Kolom 1: Spektrum Waktu Diskrit -->
+<div class="card">
+<h3 class="card-title cyan"><span>⏱️</span> Spektrum Jendela Waktu</h3>
+<p class="card-text-muted">
+            Transisi pulsa hanya diizinkan bila durasi siklus $N$ berada dalam jendela valid Manchester:
+          </p>
+<div class="code-box text-xs mt-1">
+Siklus: 0   4   7   8 9 10  11  15  16 18 20  21   64+
+Zona  : [ RUNT GLITCH ][ HB ][ MIDBAND ][  BIT  ][ GAP ][EOF]
+Vonis : [ ILEGAL: FLT ][LEGAL][ ILEGAL  ][ LEGAL][ ILEGAL][OK]
+Durasi: 0      350 us  450us  600 us     900 us  1.05ms  3.2ms</div>
+<ul class="bullet-list mt-2">
+<li><strong>Half-Bit (HB):</strong> $N \in [8, 10]$ ($400 - 500\,\mu\text{s}$, nominal $N=9$).</li>
+<li><strong>Full-Bit (BIT):</strong> $N \in [16, 20]$ ($800 - 1000\,\mu\text{s}$, nominal $N=18$).</li>
+<li><strong>Runt Fault:</strong> $N \le 7 \implies$ <code>3'b001</code>.</li>
+<li><strong>Mid-Band Fault:</strong> $11 \le N \le 15 \implies$ <code>3'b010</code>.</li>
+</ul>
+</div>
+<!-- Kolom 2: 4-State Context Tracking FSM -->
+<div class="card card-gold">
+<h3 class="card-title gold"><span>🔄</span> FSM Pelacak Konteks &amp; Anti-Squelch</h3>
+<ul class="bullet-list">
+<li><strong>STATE_IDLE (2'b00):</strong> Menunggu edge pulsa masuk. <code>reception_active = 0</code>.</li>
+<li><strong>STATE_ARMED (2'b01):</strong> Menampung desis squelch awal (1..4 siklus). Jika timeout tanpa pulsa sah, kembali ke IDLE (<strong>Zero False Alarm</strong>).</li>
+<li><strong>STATE_ACTIVE (2'b10):</strong> Amplop aktif (<code>reception_active = 1</code>). Pelanggaran runt atau mid-band seketika memicu fault!</li>
+<li><strong>STATE_LONG_GAP_PENDING (2'b11):</strong> Jeda aktif $\ge 21$. Bila menyambung sebelum 64 $\implies$ fault <code>3'b011</code>; bila hening hingga $\ge 64$ $\implies$ normal End-of-Packet reset.</li>
+</ul>
+</div>
+<!-- Kolom 3: Verilog RTL Snippet -->
+<div class="card">
+<h3 class="card-title green"><span>💻</span> RTL: ares_timing_sentinel.v</h3>
+<div class="code-box">
+<span class="cmt">// Window Comparator</span>
+<span class="kw">wire</span> is_runt     = (cnt &lt; HB_MIN) &amp;&amp; (cnt &gt; <span class="num">0</span>);
+<span class="kw">wire</span> is_half_bit = (cnt &gt;= HB_MIN) &amp;&amp; (cnt &lt;= HB_MAX);
+<span class="kw">wire</span> is_midband  = (cnt &gt; HB_MAX) &amp;&amp; (cnt &lt; BIT_MIN);
+<span class="kw">wire</span> is_full_bit = (cnt &gt;= BIT_MIN) &amp;&amp; (cnt &lt;= BIT_MAX);
+<span class="kw">wire</span> is_valid    = is_half_bit | is_full_bit;
+
+<span class="cmt">// Real-time Anomaly Classification</span>
+<span class="kw">if</span> (edge_detected &amp;&amp; (state == ACTIVE)) <span class="kw">begin</span>
+<span class="kw">if</span> (is_valid) <span class="kw">begin</span>
+    temporal_valid &lt;= <span class="num">1'b1</span>;
+  <span class="kw">end</span> <span class="kw">else if</span> (is_runt) <span class="kw">begin</span>
+    temporal_fault &lt;= <span class="num">1'b1</span>;
+    fault_code     &lt;= <span class="num">3'b001</span>; <span class="cmt">// RUNT</span>
+<span class="kw">end</span> <span class="kw">else if</span> (is_midband) <span class="kw">begin</span>
+    temporal_fault &lt;= <span class="num">1'b1</span>;
+    fault_code     &lt;= <span class="num">3'b010</span>; <span class="cmt">// MIDBAND</span>
+<span class="kw">end</span>
+<span class="kw">end</span></div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 8: LAYER 2: FRAME SYNTAX MONITOR
+         ======================================================================== -->
+<div class="slide" data-title="9. Layer 2: Frame Syntax Monitor" id="slide-9">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">Autonomous 8-Bit Counter</span>
+<span class="pill pill-gold">Zero Baseline Dependency</span>
+<span class="pill pill-green">Sample-Time Validation</span>
+<span class="pill pill-red">Truncation &amp; Overrun Traps</span>
+</div>
+<h2 class="slide-title">Layer 2: Frame Syntax Monitor — Tata Bahasa Protokol 192-Bit</h2>
+<p class="slide-subtitle">Pengawalan Tata Bahasa Protokol Otonom 192-Bit &amp; Penolakan Buffer Attack Seketika</p>
+</div>
+<div class="slide-body">
+<!-- Peta Geometri Bit 192-bit -->
+<div class="card">
+<h3 class="card-title cyan"><span>📐</span> Peta Geometri Frame 192-Bit (24 Byte)</h3>
+<div class="code-box text-xs">
+Bit:  0           31 32        47 48        63 64           95 96                167 168         191
+     +--------------+------------+------------+---------------+---------------------+---------------+
+Field|   Preamble   |   Type 1   |   Type 2   |   Constant    |   Dynamic Payload   |    Trailer    |
+Ukuran|   (32 bit)   |  (16 bit)  |  (16 bit)  |   (32 bit)    |      (72 bit)       |   (24 bit)    |
+Nilai|  0xAAAAAAAA  |   0xD391   |   0xD391   |  0x0DFFFFFE   |  Sensor ID, Temp,   |  Boundary EOF |
+     |              |            |            |               |  Setpoint &amp; Status  |               |
+     +--------------+------------+------------+---------------+---------------------+---------------+
+     [------ FIELD TETAP: 100% DIKAWAL GERBANG PERANGKAT KERAS ------][ TRANSPARAN DEDIKASI ][  VALIDASI END ]</div>
+</div>
+<div class="grid-2col mt-1">
+<!-- Kolom Kiri: Tiga Prinsip Operasional -->
+<div class="card">
+<h3 class="card-title gold"><span>🛡️</span> Tiga Prinsip Verifikasi Otonom</h3>
+<ul class="bullet-list">
+<li>
+<strong>Pencacah Otonom (bit_counter [7:0]):</strong> Mencacah mandiri dari 0 hingga 191 pada saat serial_clock aktif. Sentinel <strong>tidak bergantung</strong> pada flag <code>full</code> demodulator legacy yang rentan hung/deadlock.
+              </li>
+<li>
+<strong>Sample-Time Verification:</strong> Setiap bit diverifikasi seketika pada saat sampel clock pertama tiba tanpa menunggu frame utuh dibaca ke RAM:
+                $$\forall i \in [0, 95], \quad \text{Bit}_i == \text{Golden}_i$$
+              </li>
+<li>
+<strong>Transparansi Payload Dinamis:</strong> Bit 96..167 (telemetri ID sensor &amp; suhu Peruri) diloloskan secara murni tanpa intervensi.
+              </li>
+</ul>
+</div>
+<!-- Kolom Ranan: Traps & RTL -->
+<div class="card card-alert">
+<h3 class="card-title orange"><span>💥</span> Boundary Traps &amp; Cuplikan RTL</h3>
+<ul class="bullet-list">
+<li><strong>Truncation Trap (AV07):</strong> Jika amplop jatuh sebelum 192 bit (&lt;192b) $\implies$ fault <code>3'b111</code> (mencegah host memproses frame buntung).</li>
+<li><strong>Overrun Trap (AV08):</strong> Jika terdeteksi pulsa ke-193+ saat frame selesai (&gt;192b) $\implies$ fault <code>3'b111</code> (mencegah heap buffer overflow).</li>
+</ul>
+<div class="code-box text-xs mt-2">
+<span class="cmt">// Truncation Check</span>
+<span class="kw">if</span> (prev_active &amp;&amp; !active &amp;&amp; started &amp;&amp; !complete) <span class="kw">begin</span>
+  frame_fault      &lt;= <span class="num">1'b1</span>;
+  frame_fault_code &lt;= <span class="num">3'b111</span>; <span class="cmt">// TRAILER_CORRUPT</span>
+<span class="kw">end</span> <span class="kw">else if</span> (serial_clock) <span class="kw">begin</span>
+<span class="kw">if</span> (expect_check &amp;&amp; (serial_data != expected_bit)) <span class="kw">begin</span>
+    frame_fault &lt;= <span class="num">1'b1</span>; frame_fault_code &lt;= check_code;
+  <span class="kw">end</span>
+<span class="kw">end</span></div>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 9: LAYER 3: FAIL-CLOSED ISOLATION
+         ======================================================================== -->
+<div class="slide" data-title="10. Layer 3: Fail-Closed Isolation" id="slide-10">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-gold">Tlatch = 1 Cycle (50 µs)</span>
+<span class="pill pill-green">Tisolate = 0 Cycles (~1.2 ns)</span>
+<span class="pill pill-red">Sticky Hardware Latch</span>
+<span class="pill pill-cyan">Zero Payload Leakage</span>
+</div>
+<h2 class="slide-title">Layer 3: Hardware Fail-Closed Isolation Subsystem</h2>
+<p class="slide-subtitle">Isolasi Fisik Seketika, Gerbang Nol Mutlak, dan Sinyal Bahaya Non-Maskable</p>
+</div>
+<div class="slide-body grid-3col">
+<!-- Kolom 1: Arbitrase & Latch -->
+<div class="card">
+<h3 class="card-title cyan"><span>⚖️</span> Arbitrase Prioritas &amp; Sticky Latch</h3>
+<p class="card-text-muted">
+            Menyelesaikan anomali dalam siklus yang sama secara kombinatorial murni (latensi 0 siklus):
+          </p>
+<div class="formula-container">
+            $$\text{Priority}: \quad L1\ \text{Temporal} \succ L2\ \text{Syntax}$$
+          </div>
+<ul class="bullet-list mt-1">
+<li><strong>Sticky Fault Latch:</strong> Mengunci bahaya pada clock edge berikutnya ($T_{\text{latch}} = 1\ \text{siklus} = 50.0\,\mu\text{s}$).</li>
+<li><strong>Non-Volatile Hardware State:</strong> Tidak dapat ditimpa oleh software atau derau lanjutan; hanya dapat dinolkan kembali melalui pin fisik <code>rst_n</code>.</li>
+</ul>
+</div>
+<!-- Kolom 2: Zeroization Gate & Code Snippet -->
+<div class="card card-gold">
+<h3 class="card-title gold"><span>🚫</span> Zeroization Gate Kombinatorial</h3>
+<p class="card-text-muted">
+            Memaksa bus data paralel keluar menjadi 0x00 seketika dalam latensi gerbang silikon (~1.2 ns):
+          </p>
+<div class="code-box mt-1">
+<span class="cmt">// Zeroization Gate RTL (ares_isolation_gate.v)</span>
+<span class="kw">assign</span> out_data     = (fault_latched) ? <span class="num">8'h00</span> : in_data;
+<span class="kw">assign</span> out_valid    = (fault_latched) ? <span class="num">1'b0</span>  : in_valid;
+<span class="kw">assign</span> tamper_alert = fault_latched;
+
+<span class="cmt">// Top-Level Wrapper (tt_um_ares_sentinel_project.v)</span>
+<span class="hl">assign safe_data_out = (tamper_alert_r) ? 8'h00 : raw_decoder_data;</span>
+<span class="kw">assign</span> uo_out        = safe_data_out &amp; {<span class="num">8</span>{halt}};
+<span class="kw">assign</span> uio_out[<span class="num">6</span>]    = tamper_alert; <span class="cmt">// Pin Interrupt</span></div>
+</div>
+<!-- Kolom 3: Jaminan Latensi Formal -->
+<div class="card card-alert">
+<h3 class="card-title green"><span>⏱️</span> Jaminan Latensi Formal</h3>
+<ul class="bullet-list">
+<li>
+<strong>Property 1 (Single-Cycle Latch):</strong><br/>
+              $$T_{\text{latch}} = 1\ \text{clock cycle} \ (50.0\,\mu\text{s} @ 20\,\text{kHz})$$
+            </li>
+<li>
+<strong>Property 2 (Zero-Cycle Bus Isolation):</strong><br/>
+              $$T_{\text{isolate}} = 0\ \text{clock cycles} \ (\approx 1.2\,\text{ns OpenSTA})$$
+            </li>
+<li>
+<strong>Property 3 (Deterministic Zeroization):</strong><br/>
+              $$\forall t \ge t_{\text{latched}}, \quad \text{uo\_out}[7:0] = 8\text{'h00}$$
+            </li>
+</ul>
+<div class="callout callout-success mt-2">
+<strong>Garansi Keamanan:</strong> Meniadakan 100% risiko korupsi data tersembunyi (<em>silent corruption</em>). Data berbahaya dimusnahkan sebelum menyentuh bus DMA atau memori host MCU.
+          </div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 10: ARSITEKTUR SISTEM LENGKAP (MERMAID + FALLBACK)
+         ======================================================================== -->
+<div class="slide" data-title="11. Arsitektur Sistem Lengkap" id="slide-11">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">END-TO-END PIPELINE</span>
+<span class="pill pill-green">MERMAID DYNAMIC RENDER</span>
+<span class="pill pill-gold">4 STRUCTURAL DOMAINS</span>
+<span class="pill pill-orange">HARDWARE SECURITY BOUNDARY</span>
+</div>
+<h2 class="slide-title">Arsitektur Sistem Lengkap: Integrasi Perimeter Silikon</h2>
+<p class="slide-subtitle">Visualisasi Diagram Blok Alur Sinyal Ujung-ke-Ujung (Physical -&gt; Sentinel Core -&gt; Legacy Demod -&gt; Protected Host)</p>
+</div>
+<div class="slide-body">
+<div class="mermaid-box">
+<!-- Live Mermaid Diagram Container -->
+<div class="mermaid" id="system-mermaid-diagram">
+flowchart TD
+    subgraph PhysicalDomain ["1. Physical Baseband Domain"]
+        ANT["433.92 MHz ISM RF"] -.-&gt; DEMOD["Analog Front-End / Receiver IC"]
+        DEMOD --&gt;|"CMOS Digital Pulses"| RX["rx_in (ui_in[0])"]
+    end
+
+    subgraph SentinelCore ["2. ARES-RX Sentinel Protected Silicon Core"]
+        direction TB
+        
+        subgraph Layer1 ["Layer 1: Temporal Integrity Sentinel (ares_timing_sentinel.v)"]
+            T_CNT["Continuous Interval Counter (0..255)"]
+            T_DEC["Boundary Window Decision Logic<br/>V = [8..10] U [16..20]"]
+            T_FSM["L1 Context Tracking FSM<br/>(IDLE -&gt; ARMED -&gt; ACTIVE)"]
+            T_CNT --&gt; T_DEC
+            T_DEC --&gt; T_FSM
+        end
+
+        subgraph Layer2 ["Layer 2: Frame Syntax Monitor (ares_frame_fsm.v)"]
+            F_CNT["Autonomous Bit Counter (0..191)"]
+            F_DEC["Strict Protocol Grammar Checker<br/>(Preamble, Type1/2, Constant, Trailer)"]
+            F_CNT --&gt; F_DEC
+        end
+
+        subgraph Arbiter ["Fault Priority Arbiter (ares_fault_arbiter.v)"]
+            ARB["Same-Cycle Fault Arbiter<br/>Priority: L1 Temporal &gt; L2 Syntax"]
+        end
+
+        subgraph Layer3 ["Layer 3: Hardware Fail-Closed Isolation (ares_isolation_l3.v)"]
+            LATCH["Sticky Hardware Fault Latch<br/>(ares_fault_latch.v)<br/>Non-volatile alert state"]
+            GATE["Fail-Closed Zeroization Gate<br/>(ares_isolation_gate.v)<br/>Combinational Zeroization"]
+            LATCH --&gt;|"fault_latched"| GATE
+        end
+    end
+
+    subgraph BaselineDomain ["3. Legacy Demodulator Subsystem (tt07-bep-decode)"]
+        DEC["Manchester Strobe &amp; Bit Demodulator<br/>(project.v)"]
+        BUF["97-bit Frame Shift Register<br/>(full flag, parallel output)"]
+        DEC --&gt; BUF
+    end
+
+    subgraph HostInterface ["4. Protected Host System Boundary"]
+        SAFE_BUS["Parallel Data Bus: uo_out[7:0]<br/>(Zeroized to 0x00 on Attack)"]
+        TAMPER["Tamper Alert Pin: uio[6]<br/>(Hardware Interrupt to MCU)"]
+        STATUS["Telemetry Pins: uio[7:0]<br/>(reception_active, fault_code)"]
+    end
+
+    %% Signal Connections
+    RX ==&gt;|"Raw Pulse Stream"| T_CNT
+    RX ==&gt;|"Signal Path"| DEC
+    
+    T_FSM --&gt;|"reception_active"| F_CNT
+    T_DEC --&gt;|"temporal_fault, fault_code"| ARB
+    
+    DEC --&gt;|"serial_clock, serial_data"| F_CNT
+    F_DEC --&gt;|"frame_fault, frame_fault_code"| ARB
+    
+    ARB --&gt;|"set_fault, final_code"| LATCH
+    
+    BUF --&gt;|"raw_data[7:0], raw_valid"| GATE
+    GATE ==&gt;|"Safe / Zeroized Data"| SAFE_BUS
+    LATCH ==&gt;|"Immediate Alert Strobe"| TAMPER
+    T_FSM --&gt;|"reception_active"| STATUS
+          </div>
+<!-- Robust Fallback ASCII Block (Displayed if CDN fails) -->
+<pre class="mermaid-fallback" id="system-mermaid-fallback">
++---------------------------------------------------------------------------------------------------------+
+| 1. PHYSICAL BASEBAND DOMAIN                                                                             |
+|   [433.92 MHz RF] -.-&gt; [Receiver IC / Demodulator] ---&gt; rx_in (ui_in[0]: CMOS Digital Pulses)           |
++---------------------------------------------------------|-----------------------------------------------+
+                                                          |
+              +-------------------------------------------+-----------------------------------+
+              |                                                                               |
+              v                                                                               v
++=============================================================+   +=======================================+
+| 2. ARES-RX SENTINEL HARDWARE SECURITY CORE                  |   | 3. LEGACY DEMODULATOR SUBSYSTEM       |
+|                                                             |   |    (tt07-bep-decode Core)             |
+|  [Layer 1: Temporal Sentinel (ares_timing_sentinel.v)]      |   |                                       |
+|   - Continuous Interval Counter (0..255 @ 20 kHz)           |   |   - Manchester Strobe &amp; Clock Recovery|
+|   - Window Comparator: V = [8..10] U [16..20] cycles        |   |   - 97-bit Frame Shift Register       |
+|   - 4-State Reception FSM: IDLE -&gt; ARMED -&gt; ACTIVE          |   |   - Parallel Out: raw_data[7:0]       |
+|            | (reception_active)             | (temporal_flt)|   +-------------------+-------------------+
+|            v                                v               |                       |
+|  [Layer 2: Frame Syntax Monitor (ares_frame_fsm.v)]         |                       |
+|   - Autonomous 192-bit Bit Counter (0..191)                 |                       |
+|   - Protocol Grammar Checker (0xAAAAAAAA, 0xD391, Const)    |                       |
+|   - Truncation (&lt;192b) &amp; Overrun (&gt;192b) Traps              |                       |
+|            |                                | (frame_fault) |                       |
+|            +--------------------------------v---------------+                       |
+|                                             |                                       |
+|                               [Fault Priority Arbiter]                              |
+|                               (Pure Comb: L1 &gt; L2)                                  |
+|                                             | (set_fault)                           |
+|                                             v                                       |
+|  [Layer 3: Fail-Closed Isolation (ares_isolation_l3.v)]                             |
+|   - Sticky Fault Latch: Captures first cause (T_latch = 1)                          |
+|   - Combinational Zeroization Gate (T_isolate = 0 cycles) &lt;-------------------------+
++=============================================|===========================================================+
+                                              |
+                      +-----------------------+-----------------------+
+                      | Safe / Zeroized Data                          | Latched Alarm
+                      v                                               v
++=========================================================================================================+
+| 4. PROTECTED HOST SYSTEM BOUNDARY (Microcontroller / SoC Interface)                                     |
+|    - Parallel Safe Bus : uo_out[7:0]  (Clamped to 8'h00 on attack, clean verified payload on nominal)   |
+|    - Tamper Alert Pin  : uio_out[6]   (Hardware Non-Maskable Interrupt to Host MCU)                     |
+|    - Telemetry Pins    : uio_out[7:0] (reception_active, manchester_clk, full, fault indicators)        |
++=========================================================================================================+</pre>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 11: SILICON SIGN-OFF: SKYWATER 130nm
+         ======================================================================== -->
+<div class="slide" data-title="12. Silicon Sign-Off (PPA)" id="slide-12">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">SkyWater 130nm High-Density</span>
+<span class="pill pill-cyan">Tiny Tapeout TT08 1x1 Tile</span>
+<span class="pill pill-green">100% LVS Match (758/758 Cells) | 764/764 Devices</span>
+<span class="pill pill-green">0 Active DRC Violations</span>
+<span class="pill pill-gold">Fmax = 123.15 MHz</span>
+</div>
+<h2 class="slide-title">Silicon Sign-Off: SkyWater 130nm — Bukti Fisik &amp; Metrik PPA</h2>
+<p class="slide-subtitle">Karakterisasi Fisik PPA, Integritas Manufaktur, dan Penutupan Waktu Pasca-Layout</p>
+</div>
+<div class="slide-body grid-2col">
+<!-- Kolom Kiri: Tabel Skor Fisik PPA -->
+<div class="card">
+<h3 class="card-title cyan"><span>📐</span> Tabel Karakterisasi Fisik PPA (TAB-03 Reconciled)</h3>
+<div class="table-container">
+<table class="data-table">
+<thead>
+<tr>
+<th>Parameter Fisik</th>
+<th>Baseline</th>
+<th>Sentinel Top</th>
+<th>Overhead (Δ)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Proses Fabrikasi</strong></td>
+<td>SkyWater 130nm</td>
+<td><strong>SkyWater 130nm</strong></td>
+<td><code>sky130_fd_sc_hd</code></td>
+</tr>
+<tr>
+<td><strong>Format Die TT08</strong></td>
+<td>Tile 1×1</td>
+<td><strong>Tile 1×1</strong></td>
+<td>161.00 × 111.52 µm</td>
+</tr>
+<tr>
+<td><strong>Luas Gross Die</strong></td>
+<td>17,954.72 µm²</td>
+<td><strong>17,954.72 µm²</strong></td>
+<td>0.00 µm²</td>
+</tr>
+<tr>
+<td><strong>Standard Cells</strong></td>
+<td>594 cells</td>
+<td><strong>758 cells</strong></td>
+<td>+164 cells (+27.6%)</td>
+</tr>
+<tr>
+<td><strong>Total Instances</strong></td>
+<td>603 inst</td>
+<td><strong>766 inst</strong></td>
+<td>+163 inst</td>
+</tr>
+<tr>
+<td><strong>Luas Sel Murni</strong></td>
+<td>5,017.31 µm²</td>
+<td><strong>6,477.46 µm²</strong></td>
+<td>+1,460.15 µm²</td>
+</tr>
+<tr>
+<td><strong>Net Core Density</strong></td>
+<td>49.91%</td>
+<td><strong>63.99%</strong></td>
+<td>+14.08%</td>
+</tr>
+<tr>
+<td><strong>Routing Wirelength</strong></td>
+<td>21,208 µm</td>
+<td><strong>19,988 µm</strong></td>
+<td>-1,220 µm (5,970 vias)</td>
+</tr>
+<tr class="row-highlight">
+<td><strong>Netgen LVS (1.5.133)</strong></td>
+<td>100% Match</td>
+<td><strong>100% Match (764/764)</strong></td>
+<td>776 nets, 45 ports</td>
+</tr>
+<tr class="row-highlight">
+<td><strong>Magic DRC Rules</strong></td>
+<td>0 violations</td>
+<td><strong>0 active violations</strong></td>
+<td>874 waived pad ring</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Kolom Ranan: STA & Proteksi Fisik -->
+<div class="card card-gold">
+<h3 class="card-title gold"><span>⚡</span> Penutupan Waktu Statis &amp; Proteksi Fisik</h3>
+<ul class="bullet-list">
+<li>
+<strong>Target Operasi Nominal (20.00 kHz, T = 50.0 µs):</strong><br/>
+              Slack positif melimpah dalam orde puluhan mikrodetik.
+            </li>
+<li>
+<strong>Uji Stres Ekstrem 50.00 MHz (2,500× Lebih Cepat):</strong><br/>
+              - <strong>Reg-to-Reg Setup Slack:</strong> <strong class="text-green">+11.88 ns</strong> ($WNS = 0.00\,\text{ns}$).<br/>
+              - <strong>IO-Constrained Setup Slack:</strong> <strong class="text-green">+7.29 ns</strong>.<br/>
+              - <strong>Hold Slack:</strong> <strong class="text-green">+0.42 ns</strong> (nol pelanggaran hold di semua corner).<br/>
+              - <strong>Fmax Teoretis:</strong> <strong class="text-cyan">123.15 MHz</strong> (reg-to-reg) / 78.68 MHz (IO).
+            </li>
+<li>
+<strong>Integritas Proteksi Fisik CMOS:</strong><br/>
+              - <strong>225 Substrate Tap Cells:</strong> Jarak antar-tap $\le 14\,\mu\text{m}$ (syarat DRC $\le 15\,\mu\text{m}$, margin keselamatan &gt;7% anti-latchup).<br/>
+              - <strong>78 Decap Endcaps:</strong> 574.30 µm² decoupling capacitor terpasang.<br/>
+              - <strong>Clock Tree Synthesis (CTS):</strong> 17 clock buffers, skew terkontrol <strong>&lt;0.08 ns</strong> (&lt;0.4% periode clock 50 MHz).
+            </li>
+</ul>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 12: POWER BUDGET & ATURAN EPISTEMIK DAYA MUTLAK
+         ======================================================================== -->
+<div class="slide" data-title="13. Power Budget &amp; Epistemic Rule" id="slide-13">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">57.90 nW Authoritative (VCD)</span>
+<span class="pill pill-gold">Overhead +12.70 nW (+28.1%)</span>
+<span class="pill pill-green">Leakage 3.10 nW</span>
+<span class="pill pill-red">Fabrication PENDING</span>
+</div>
+<h2 class="slide-title">Power Budget &amp; Epistemic Boundary</h2>
+<p class="slide-subtitle">Karakterisasi Daya Pasca-Layout 57.90 nW @ 20 kHz &amp; Deklarasi Batas Ilmiah Otoritatif</p>
+</div>
+<div class="slide-body grid-2col">
+<!-- Kolom Kiri: Rincian Komponen Daya -->
+<div class="card">
+<h3 class="card-title cyan"><span>⚡</span> Rincian Daya Pasca-Layout (TAB-04 Reconciled)</h3>
+<div class="table-container">
+<table class="data-table">
+<thead>
+<tr>
+<th>Komponen Daya</th>
+<th>Baseline</th>
+<th>Sentinel Top</th>
+<th>Overhead Keamanan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="4" style="background: rgba(0,212,255,0.08); font-weight: bold; color: var(--accent-cyan);">
+                    KONDISI OPERASIONAL NOMINAL: 20 kHz (1.80V, 25°C, VCD α=0.1418)
+                  </td>
+</tr>
+<tr>
+<td>Sequential Dynamic</td>
+<td>10.00 nW (22.1%)</td>
+<td><strong>12.00 nW</strong> (20.7%)</td>
+<td>+2.00 nW (+20.0%)</td>
+</tr>
+<tr>
+<td>Combinational Dynamic</td>
+<td>32.70 nW (72.3%)</td>
+<td><strong>42.80 nW</strong> (73.9%)</td>
+<td>+10.10 nW (+30.9%)</td>
+</tr>
+<tr>
+<td><strong>Total Dynamic Switching</strong></td>
+<td><strong>42.70 nW (94.4%)</strong></td>
+<td><strong>54.80 nW (94.7%)</strong></td>
+<td><strong>+12.10 nW (+28.3%)</strong></td>
+</tr>
+<tr>
+<td>Static Leakage</td>
+<td>2.52 nW (5.6%)</td>
+<td><strong>3.10 nW</strong> (5.3%)</td>
+<td>+0.58 nW (+23.0%)</td>
+</tr>
+<tr class="row-highlight">
+<td><strong>TOTAL DAYA (20 kHz)</strong></td>
+<td><strong>45.20 nW</strong></td>
+<td><strong>57.90 nW</strong></td>
+<td><strong>+12.70 nW (+28.1%)</strong></td>
+</tr>
+<tr>
+<td colspan="4" style="background: rgba(255,215,0,0.08); font-weight: bold; color: var(--accent-yellow);">
+                    KONDISI UJI STRES KASUS TERBURUK: 50 MHz (1.80V, 25°C)
+                  </td>
+</tr>
+<tr>
+<td><strong>Total Daya Stres 50 MHz</strong></td>
+<td>103.50 µW</td>
+<td><strong>138.00 µW</strong></td>
+<td>+34.50 µW (+33.3%)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="metrics-grid-4 mt-2">
+<div class="stat-card">
+<span class="stat-val text-cyan">32.17 pA</span>
+<span class="stat-lbl">Arus Inti (1.8V)</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-green">&gt;20 Tahun</span>
+<span class="stat-lbl">Baterai CR2032</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-gold">+28.1%</span>
+<span class="stat-lbl">Overhead Proteksi</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-green">10-20 mW</span>
+<span class="stat-lbl">Daya MCU Dihemat</span>
+</div>
+</div>
+</div>
+<!-- Kolom Kanan: Deklarasi Epistemik Daya Mutlak -->
+<div class="card card-alert">
+<h3 class="card-title red"><span>⚠️</span> DEKLARASI ATURAN EPISTEMIK DAYA MUTLAK</h3>
+<div class="callout callout-epistemic">
+<strong>MANDATORY EPISTEMIC RULE:</strong><br/>
+            Angka <strong>57.90 nW</strong> adalah estimasi daya pasca-layout otoritatif berbasis beban kerja switching VCD otentik pada titik operasi 20 kHz (OpenSTA post-route Scenario B, switching activity $\alpha = 0.1418$, 16,695 siklus simulasi <code>ares_sentinel_integrated.vcd</code>, parasitik OpenRCX SPEF).
+          </div>
+<p class="card-text text-red font-bold mt-2">DILARANG KERAS MENYEBUT ANGKA INI SEBAGAI:</p>
+<ul class="bullet-list">
+<li>[X] Pengukuran daya silikon terfabrikasi (<em>measured silicon power</em>)</li>
+<li>[X] Daya operasional silikon fisik (<em>silicon operational power</em>)</li>
+<li>[X] Pengukuran daya chip nyata (<em>fabricated-chip power</em>)</li>
+<li>[X] "Actual silicon deployment" power</li>
+</ul>
+<h3 class="card-title gold mt-2"><span>🔍</span> Status Hilirisasi Fisik Otoritatif</h3>
+<ul class="bullet-list">
+<li><strong>Pengukuran Daya Silikon Fisik:</strong> <strong class="text-orange">NOT AVAILABLE / BELUM TERSEDIA</strong>.</li>
+<li><strong>Fabrikasi Silikon Fisik:</strong> <strong class="text-orange">Tiny Tapeout TT08 PENDING</strong>.</li>
+<li><strong>Estimasi Sekunder:</strong> <strong>50.90 nW</strong> (Scenario A, sweep statis $\alpha = 0.075$ pada <code>docs/info.md</code>) adalah hasil metodologi perbandingan sekunder dan tidak boleh dicampuradukkan.</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 13: VERIFIKASI: CYBER-PHYSICAL TESTBENCH
+         ======================================================================== -->
+<div class="slide" data-title="14. Cyber-Physical Testbench" id="slide-14">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">MILESTONE M6</span>
+<span class="pill pill-green">CYBER-PHYSICAL DEMONSTRATOR</span>
+<span class="pill pill-orange">ISOLATED LAB TOPOLOGY</span>
+<span class="pill pill-gold">P-C-B-R CAUSAL CHAIN</span>
+</div>
+<h2 class="slide-title">Verifikasi: Cyber-Physical Testbench Terisolasi</h2>
+<p class="slide-subtitle">Pembuktian Kausalitas Ujung-ke-Ujung ($P \rightarrow C \rightarrow B \rightarrow R$) dalam Topologi Dual Linux Network Namespace</p>
+</div>
+<div class="slide-body grid-2col">
+<!-- Kolom Kiri: Topologi Testbench -->
+<div class="card">
+<h3 class="card-title cyan"><span>🌐</span> Topologi Dual Network Namespace</h3>
+<p class="card-text">
+            Pengujian M6 mengevaluasi ARES-RX Sentinel dalam lingkungan siber-fisik terisolasi penuh pada kernel Linux, menjamin stimulus nirkabel melewati kanal stokastik nyata sebelum menyentuh gerbang silikon RTL:
+          </p>
+<ul class="bullet-list">
+<li><strong>Attacker Namespace (<code>ns_attacker</code>):</strong> IP <code>192.168.100.10/24</code>, menginjeksi paket UDP stimulus kanonik.</li>
+<li><strong>Virtual Bridge (<code>br_ares</code>):</strong> Dilengkapi Linux Traffic Control (<code>tc netem delay 5.0ms ± 1.2ms normal</code>) untuk emulasi propagasi RF stokastik.</li>
+<li><strong>Receiver Namespace (<code>ns_receiver</code>):</strong> IP <code>192.168.100.20/24</code>, menerima datagram, merekonstruksi baseband, dan memicu ko-simulasi RTL.</li>
+<li><strong>Latensi Transport Riil Terukur:</strong> 2.186 ms – 7.668 ms (rata-rata 5.697 ms), selaras dengan distribusi empiris kanal nirkabel.</li>
+</ul>
+</div>
+<!-- Kolom Ranan: Rantai Kausal 4 Tahap P->C->B->R -->
+<div class="card card-gold">
+<h3 class="card-title gold"><span>⛓️</span> Rantai Kausal 4 Tahap ($P \rightarrow C \rightarrow B \rightarrow R$)</h3>
+<ul class="bullet-list">
+<li>
+<strong>P (Packet Ingress - $H_{\text{packet}}$):</strong> Datagram UDP ingress dikirim melintasi bridge jaringan virtual emulasi RF.
+            </li>
+<li>
+<strong>C (Canonical Profile - $H_{\text{canonical}}$):</strong> <em>Invariant C</em> memvalidasi dekoding paket menjadi profil transisi kanonik tanpa distorsi.
+            </li>
+<li>
+<strong>B (Baseband Reconstruction - $H_{\text{baseband}}$):</strong> <em>Invariant D</em> merekonstruksi aliran sinyal biner per-siklus <code>(rx_in, s_clk, s_data)</code> sebagai Identitas Stimulus Primer.
+            </li>
+<li>
+<strong>R (In-Line RTL Co-Sim - $H_{\text{rtl}}$):</strong> <em>Invariant E</em> mengeksekusi simulator netlist Verilog synthesizable (<code>vvp</code>), mengunci fault ($T_{\text{latch}}=1$), dan mengisolasi bus ($T_{\text{isolate}}=0$).
+            </li>
+</ul>
+<div class="callout callout-info mt-2">
+<span class="mono text-xs">Run ID Otoritatif: WO011R1-FINAL-20260927-225358 | Sumber: PERURI_CYBER_PHYSICAL_DEMO_DOSSIER.md</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 14: HASIL VERIFIKASI: 9 VEKTOR KANONIK
+         ======================================================================== -->
+<div class="slide" data-title="15. Hasil Verifikasi 9 Vektor" id="slide-15">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-green">100% DETECTION RATE</span>
+<span class="pill pill-cyan">0% FALSE ALARM</span>
+<span class="pill pill-gold">10,737 CYCLES CONCORDANT</span>
+<span class="pill pill-orange">118,107 SIGNAL CHECKS</span>
+</div>
+<h2 class="slide-title">Hasil Verifikasi: 9 Vektor Serangan Kanonik</h2>
+<p class="slide-subtitle">Evaluasi Empiris Komprehensif: 10,737 Siklus Clock &amp; 118,107 Evaluasi Sinyal Tanpa Deviasi ($T_{latch}=1$ cycle, $T_{isolate}=0$ cycles)</p>
+</div>
+<div class="slide-body">
+<div class="table-container">
+<table class="data-table">
+<thead>
+<tr>
+<th>ID Vektor</th>
+<th>Kategori Skenario Stimulus</th>
+<th>Total Siklus</th>
+<th>Siklus Fault</th>
+<th>Bus Out</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-nominal">
+<td><strong>AV00</strong></td>
+<td>Nominal Baseline Traffic</td>
+<td>1,876</td>
+<td>—</td>
+<td><code class="text-green font-bold">0x55</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV01</strong></td>
+<td>L1: Runt Glitch Attack</td>
+<td>87</td>
+<td>79</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV02</strong></td>
+<td>L1: Mid-Band Clock Desync</td>
+<td>96</td>
+<td>88</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV03</strong></td>
+<td>L1: Missing-Edge Dropout</td>
+<td>117</td>
+<td>109</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV04</strong></td>
+<td>L2: Preamble Corruption</td>
+<td>1,876</td>
+<td>178</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV05</strong></td>
+<td>L2: Malformed Protocol Type</td>
+<td>1,876</td>
+<td>448</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV06</strong></td>
+<td>L2: Constant Header Corrupt</td>
+<td>1,876</td>
+<td>763</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV07</strong></td>
+<td>L2: Frame Truncation</td>
+<td>1,048</td>
+<td>1040</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+<tr class="row-fault">
+<td><strong>AV08</strong></td>
+<td>L2: Frame Overrun</td>
+<td>1,885</td>
+<td>1816</td>
+<td><code class="text-orange font-bold">0x00</code></td>
+<td><span class="pill pill-green">PASS</span></td>
+</tr>
+</tbody>
+</table>
+</div><div class="callout callout-info mt-2"><strong>Catatan:</strong> T_latch = 1 cycle, T_isolate = 0 cycles untuk SEMUA vektor AV01–AV08</div>
+<div class="metrics-grid-4 mt-2">
+<div class="stat-card">
+<span class="stat-val text-green">100.0%</span>
+<span class="stat-lbl">Tingkat Deteksi (8/8)</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-cyan">10,737</span>
+<span class="stat-lbl">Total Siklus Diskrit</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-gold">118,107</span>
+<span class="stat-lbl">Evaluasi 11 Sinyal</span>
+</div>
+<div class="stat-card">
+<span class="stat-val text-green">0.0%</span>
+<span class="stat-lbl">False Alarm (AV00)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 15: CRYPTOGRAPHIC CHAIN-OF-CUSTODY
+         ======================================================================== -->
+<div class="slide" data-title="16. Cryptographic Chain-of-Custody" id="slide-16">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-gold">SHA-256 LEDGER CHAINING</span>
+<span class="pill pill-cyan">FORENSIC PROVENANCE</span>
+<span class="pill pill-green">TAMPER-EVIDENT AUDIT</span>
+</div>
+<h2 class="slide-title">Cryptographic Chain-of-Custody &amp; Forensic Ledger</h2>
+<p class="slide-subtitle">Penjaminan Integritas Rantai Bukti Tak Terputus Berbasis SHA-256 dari Genesis hingga Final Anchor</p>
+</div>
+<div class="slide-body grid-2col">
+<!-- Kolom Kiri: Taksonomi Hash -->
+<div class="card">
+<h3 class="card-title cyan"><span>🔐</span> Taksonomi 5 Hash Provenance Primer (+1 Aux)</h3>
+<ul class="bullet-list">
+<li><strong>$H_{\text{canonical}}$ (Stimulus Acuan):</strong> SHA-256 profil stimulus kanonik pada manifes YAML.</li>
+<li><strong>$H_{\text{packet}}$ (Paket Jaringan):</strong> SHA-256 byte mentah paket UDP ingress.</li>
+<li><strong>$H_{\text{baseband}}$ (Identitas Stimulus Primer):</strong> SHA-256 runtutan UTF-8 per-siklus <code>(rx_in, s_clk, s_data)</code>. <em>Unik 9/9 vektor tanpa kolisi.</em></li>
+<li><strong>$H_{\text{rtl}}$ (Jejak Observable RTL):</strong> SHA-256 seluruh deret 11 sinyal observable $O_{\text{RTL}}(n)$.</li>
+<li><strong>$H_{\text{record}}$ (Jangkar Buku Besar):</strong> SHA-256 perantaian rekaman forensik rekursif.</li>
+<li><span class="text-muted"><strong>$H_{\text{rxin}}$ (Auxiliary Diagnostic):</strong> SHA-256 pulsa gelombang carrier pada pin <code>rx_in</code>.</span></li>
+</ul>
+</div>
+<!-- Kolom Kanan: Kontrak Serialisasi & Jangkar Final -->
+<div class="card card-gold">
+<h3 class="card-title gold"><span>📜</span> Kontrak Serialisasi &amp; Jangkar Ledger Otoritatif</h3>
+<p class="card-text-muted">
+            Setiap rekaman buku besar dirantai secara kriptografis menggunakan aturan deterministik:
+          </p>
+<div class="formula-container">
+            $$H_{\text{record}, i} = \operatorname{SHA-256}\Big(\operatorname{UTF-8}\big(H_{\text{prev}, i} \mathbin{\Vert} \operatorname{JSON}_{\text{canonical}}(\text{Payload}_i)\big)\Big)$$
+          </div>
+<div class="code-box text-xs mt-2">
+Genesis Hash (i=0):
+0000000000000000000000000000000000000000000000000000000000000000
+
+Authoritative Final Ledger Anchor (i=8 / AV08):
+<span class="text-green font-bold">6f0d379d749953af6e29737bb7e29aeb99eed0698bd2019269dba63a191733f0</span>
+
+Ledger File SHA-256 (m6_unified_evidence_ledger.jsonl):
+<span class="text-cyan font-bold">04e154c2a9fe5d5ec6c7ce9cd19ffbb8732a4cd070367478ad447136328d1a0c</span></div>
+<div class="callout callout-success mt-2">
+<strong>Jaminan Matematis:</strong> Kebal terhadap manipulasi kronologis (<em>zero out-of-order execution</em>), penghapusan rekaman, maupun penyisipan data sintesis palsu.
+          </div>
+</div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 16: NILAI STRATEGIS UNTUK PERURI & INDONESIA
+         ======================================================================== -->
+<div class="slide" data-title="17. Nilai Strategis Nasional" id="slide-17">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-gold">KEDAULATAN TEKNOLOGI NASIONAL</span>
+<span class="pill pill-cyan">PERURI GOVTECH &amp; SECURITY</span>
+<span class="pill pill-green">STRATEGIC VALUE IMPACT</span>
+</div>
+<h2 class="slide-title">Nilai Strategis untuk Peruri &amp; Indonesia</h2>
+<p class="slide-subtitle">Empat Pilar Transformasi Perlindungan Siber-Fisik untuk Infrastruktur Kritis Nasional</p>
+</div>
+<div class="slide-body grid-2x2">
+<!-- Pilar 1: Smart Metering -->
+<div class="card">
+<h3 class="card-title cyan"><span>⚡</span> 01. Smart Metering Nasional (PLN, PAM, PGN)</h3>
+<p class="card-text">
+            Melindungi jutaan meteran pintar utilitas publik berbasis Sub-GHz ISM (433/868 MHz) dari serangan sabotase radio. Menangkal manipulasi angka pemakaian energi, pencurian daya, dan serangan injeksi glitch liar yang berpotensi mematikan katup distribusi air/listrik nasional secara massal.
+          </p>
+<div class="pill pill-cyan mt-1">Imunitas Sub-GHz • Zero-CPU Overhead</div>
+</div>
+<!-- Pilar 2: Pita Cukai Cerdas -->
+<div class="card card-gold">
+<h3 class="card-title green"><span>🏷️</span> 02. Pita Cukai Cerdas &amp; Dokumen Sekuritas</h3>
+<p class="card-text">
+            Mengamankan rantai pasok pita cukai tembakau/alkohol bernilai ratusan triliun rupiah penerimaan negara, paspor elektronik, dan uang rupiah. Menjamin sinyal RFID/Sub-GHz pelacak kontainer cukai tidak dapat di-spoofing atau dimanipulasi statusnya oleh sindikat penyelundup di perjalanan.
+          </p>
+<div class="pill pill-green mt-1">Anti-Radio Spoofing • Track-and-Trace</div>
+</div>
+<!-- Pilar 3: Logistik Nilai Tinggi -->
+<div class="card card-alert">
+<h3 class="card-title gold"><span>🚚</span> 03. Logistik Nilai Tinggi &amp; Pertahanan</h3>
+<p class="card-text">
+            Melindungi armada pengiriman uang kartal (Cash-in-Transit Peruri/Bank Indonesia), logistik militer, dan brankas pencetakan dokumen rahasia negara. Konsumsi daya 57.90 nW memungkinkan operasi &gt;20 tahun hanya dengan baterai koin CR2032, kebal terhadap serangan denial-of-sleep.
+          </p>
+<div class="pill pill-gold mt-1">Operasi &gt;20 Tahun CR2032 • Anti-Denial-of-Sleep</div>
+</div>
+<!-- Pilar 4: Kedaulatan Semikonduktor -->
+<div class="card">
+<h3 class="card-title orange"><span>🇮🇩</span> 04. Kedaulatan Semikonduktor Indonesia</h3>
+<p class="card-text">
+            Membuktikan kapasitas mandiri rekayasa semikonduktor Indonesia: IP Core keamanan perangkat keras pertama buatan anak bangsa yang lolos verifikasi fisik SkyWater 130nm. Mengurangi ketergantungan impor chip asing dan memposisikan Peruri sebagai Otoritas Gerbang Silikon Nasional.
+          </p>
+<div class="pill pill-orange mt-1">First Indonesian HW Sec IP • Foundry-Independent</div>
+</div>
+</div>
+<div class="callout callout-info mt-1 text-center text-xs">
+        *Catatan Epistemik: 57.90 nW @ 20 kHz adalah estimasi daya pasca-layout OpenSTA VCD-workload. Silikon fisik TT08 pending fabrikasi.
+      </div>
+</div>
+<!-- ========================================================================
+         SLIDE 17: ROADMAP HILIRISASI 2026–2028
+         ======================================================================== -->
+<div class="slide" data-title="18. Roadmap Hilirisasi" id="slide-18">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-cyan">ROADMAP IMPLEMENTASI</span>
+<span class="pill pill-gold">TIMELINE 3 FASE</span>
+<span class="pill pill-green">TOWARDS NATIONAL STANDARD</span>
+</div>
+<h2 class="slide-title">Roadmap Hilirisasi 2026–2028: Dari Silikon ke Standar Nasional</h2>
+<p class="slide-subtitle">Rencana Strategis Tiga Fase Menuju Adopsi Industri Massal dan Kemandirian Semikonduktor Peruri</p>
+</div>
+<div class="slide-body">
+<div class="roadmap-cols">
+<!-- Fase 1 -->
+<div class="roadmap-card">
+<span class="roadmap-badge phase-1">FASE 1 (Q4 2026 – Q1 2027)</span>
+<h3 class="card-title cyan">Tapeout &amp; Silicon Bring-Up</h3>
+<ul class="bullet-list">
+<li><strong>Fabrikasi Silikon Fisik:</strong> Penyerahan shuttle Tiny Tapeout TT08 pada pabrik SkyWater 130nm.</li>
+<li><strong>Karakterisasi ATE:</strong> Pengujian fisik keping chip menggunakan Automated Test Equipment laboratorium.</li>
+<li><strong>Pengukuran Daya Silikon:</strong> Pengukuran konsumsi daya riil dan validasi margin waktu pada keping wafer nyata.</li>
+<li><strong>Packaging &amp; Breakout:</strong> Perakitan keping IC ke dalam kemasan standar untuk papan evaluasi.</li>
+</ul>
+<div class="pill pill-cyan mt-3">Status: P&amp;R Selesai / Pre-Silicon Sign-off</div>
+</div>
+<!-- Fase 2 -->
+<div class="roadmap-card">
+<span class="roadmap-badge phase-2">FASE 2 (2027)</span>
+<h3 class="card-title green">Pilot Project Ekosistem Peruri</h3>
+<ul class="bullet-list">
+<li><strong>Development Board Peruri:</strong> Perancangan modul evaluasi terintegrasi transceiver Sub-GHz komersial.</li>
+<li><strong>Uji Lapangan Logistik:</strong> Penerapan pada prototipe gateway pelacak kontainer pita cukai Peruri.</li>
+<li><strong>Field Trial Smart Metering:</strong> Integrasi percontohan pada unit pembaca meteran utilitas nasional (PLN/PDAM).</li>
+<li><strong>Audit Hardware-in-the-Loop:</strong> Pengujian penetrasi siber-fisik bersama tim audit keamanan Peruri.</li>
+</ul>
+<div class="pill pill-green mt-3">Target: Validasi Lapangan TRL 8</div>
+</div>
+<!-- Fase 3 -->
+<div class="roadmap-card">
+<span class="roadmap-badge phase-3">FASE 3 (2028)</span>
+<h3 class="card-title gold">Komersialisasi &amp; Standarisasi</h3>
+<ul class="bullet-list">
+<li><strong>Integrasi Hard IP Core:</strong> Penanaman blok IP ARES-RX Sentinel ke dalam Secure Microcontroller buatan Peruri.</li>
+<li><strong>Standarisasi Nasional (SNI/BSSN):</strong> Pengusulan Hardware Security Protection Profile untuk seluruh IoT vital.</li>
+<li><strong>Mass Foundry Porting:</strong> Porting desain ke foundry volume tinggi (TSMC/GF/SkyWater) untuk produksi massal.</li>
+<li><strong>Ekspansi Pasar Regional:</strong> Lisensi IP Core keamanan untuk ekosistem perangkat pintar Asia Tenggara.</li>
+</ul>
+<div class="pill pill-gold mt-3">Target: Produksi Massal TRL 9 &amp; SNI</div>
+</div>
+</div>
+<div class="callout callout-warning mt-2">
+<strong>Komitmen Tata Kelola:</strong> Seluruh fase hilirisasi dijalankan di bawah prinsip kedaulatan data nasional, audit transparan, dan perlindungan kekayaan intelektual strategis Indonesia.
+        </div>
+</div>
+</div>
+<!-- ========================================================================
+         SLIDE 18: KESIMPULAN & CALL TO ACTION
+         ======================================================================== -->
+<div class="slide" data-title="19. Kesimpulan &amp; Call to Action" id="slide-19">
+<div class="slide-header">
+<div class="badge-strip">
+<span class="pill pill-gold">KESIMPULAN AKHIR</span>
+<span class="pill pill-green">4 PILLAR SUPERIORITY</span>
+<span class="pill pill-cyan">KOLABORASI STRATEGIS</span>
+</div>
+<h2 class="slide-title">Kesimpulan &amp; Call to Action</h2>
+<p class="slide-subtitle">Menegakkan Garis Pertahanan Siber Sejati Sejak Gerbang Pertama di Tingkat Silikon</p>
+</div>
+<div class="slide-body grid-2col" style="animation: glow-pulse 3s infinite alternate; border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 1.5rem; background: rgba(0, 212, 255, 0.03);">
+<!-- Kolom Kiri: 4 Keunggulan Mutlak -->
+<div class="card">
+<h3 class="card-title green"><span>🏆</span> 4 Keunggulan Mutlak ARES-RX Sentinel</h3>
+<ul class="bullet-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<li style="background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-green); display: flex; flex-direction: column; text-align: center;">
+<strong style="font-size: 1.1rem; color: var(--accent-green); margin-bottom: 0.5rem;">Ultra-Low Power (57.90 nW @ 20 kHz):</strong><br/>
+              Estimasi daya pasca-layout sangat efisien; tahan &gt;20 tahun dengan baterai koin CR2032 dan melindungi subsistem hilir dari serangan penguras daya.
+            </li>
+<li style="background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-green); display: flex; flex-direction: column; text-align: center;">
+<strong style="font-size: 1.1rem; color: var(--accent-green); margin-bottom: 0.5rem;">Zero-SW CPU Burden:</strong><br/>
+              0% utilisasi prosesor host, 0 byte konsumsi RAM. Melenyapkan badai interupsi (interrupt storm) dan buffer overflow sebelum menyentuh firmware.
+            </li>
+<li style="background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-green); display: flex; flex-direction: column; text-align: center;">
+<strong style="font-size: 1.1rem; color: var(--accent-green); margin-bottom: 0.5rem;">Instant 1-Cycle Fail-Closed Isolation:</strong><br/>
+              Penguncian kesalahan deterministik dalam $T_{\text{latch}}=1$ siklus clock ($50\,\mu\text{s}$) dan bus dinolkan seketika ($T_{\text{isolate}}=0$) secara kombinatorial.
+            </li>
+<li style="background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-green); display: flex; flex-direction: column; text-align: center;">
+<strong style="font-size: 1.1rem; color: var(--accent-green); margin-bottom: 0.5rem;">Cryptographically Auditable Evidence:</strong><br/>
+              100% trace concordance (10,737 siklus, 118,107 evaluasi sinyal) dengan jejak buku besar SHA-256 yang kebal manipulasi dari awal hingga akhir.
+            </li>
+</ul>
+</div>
+<!-- Kolom Ranan: Call to Action -->
+<div class="card" style="border-color: var(--accent-cyan); box-shadow: 0 0 20px var(--accent-cyan); background: rgba(0, 212, 255, 0.08);">
+<h3 class="card-title cyan">🚀 Mengawal Kedaulatan Digital Indonesia</h3>
+<p class="card-text font-bold text-cyan">
+            "Keamanan siber masa depan tidak bisa lagi bertumpu pada perangkat lunak yang rentan. Keamanan sejati harus ditegakkan di tingkat silikon."
+          </p>
+<div class="callout callout-info mt-2">
+<strong class="text-cyan">Kepada Dewan Juri Kompetisi Desain IC:</strong><br/>
+            ARES-RX Sentinel membuktikan bahwa inovasi semikonduktor Indonesia mampu bersaing di kancah internasional: desain terverifikasi fisik 100% LVS/DRC, efisiensi nanowatt, dan didukung bukti forensik matematis yang dapat diaudit secara independen.
+          </div>
+<div class="callout callout-success mt-2">
+<strong class="text-green">Kepada Pimpinan &amp; Tim Rekayasa Peruri:</strong><br/>
+            Kami mengundang Peruri untuk melangkah bersama dari tahap evaluasi pra-silikon menuju validasi fisik laboratorium dan implementasi pilot project. Bersama, kita wujudkan kedaulatan industri mikroelektronika dan proteksi aset strategis Republik Indonesia.
+          </div>
+<div class="pill pill-gold mt-3">
+            ARES Semikonduktor Teknologi • Tapeout-Ready SkyWater 130nm TT08 • Jakarta, 2026
+          </div>
+</div>
+</div>
+</div>
+</div> <!-- End Slide Wrapper -->
+<!-- Presenter Notes Drawer (Collapsible) -->
+<div id="notes-drawer">
+<div class="notes-title">
+<span>🎙️</span> NASKAH PRESENTER UNTUK DEWAN JURI &amp; EVALUATOR (BAHASA INDONESIA)
+    </div>
+<div class="notes-content" id="notes-text">
+<!-- Notes text injected dynamically by JS -->
+</div>
+</div>
+<!-- Bottom Floating Navigation Bar -->
+<div class="bottom-bar">
+<div class="bottom-left">
+<span class="pill pill-cyan">ARES-RX Sentinel</span>
+<span class="text-xs text-muted" style="display: inline-block;">IC Design Competition • Peruri Evaluator</span>
+</div>
+<div class="bottom-center">
+<button class="nav-btn" id="btn-prev" onclick="prevSlide()" title="Slide Sebelumnya (ArrowLeft / PageUp)">
+<span>◀</span> Prev
+      </button>
+<select class="slide-select" id="slide-jump-select" onchange="goToSlide(parseInt(this.value))" title="Lompat ke Slide">
+<!-- Injected via JS -->
+</select>
+<button class="nav-btn" id="btn-next" onclick="nextSlide()" title="Slide Berikutnya (ArrowRight / Spasi / PageDown)">
+        Next <span>▶</span>
+</button>
+</div>
+<div class="bottom-right">
+<button class="nav-btn nav-btn-gold" id="btn-notes" onclick="toggleNotes()" title="Buka/Tutup Catatan Presenter (N)">
+<span>🎙️</span> Notes [N]
+      </button>
+<button class="nav-btn" id="btn-fullscreen" onclick="toggleFullScreen()" title="Layar Penuh (F)">
+<span>⛶</span> Fullscreen [F]
+      </button>
+<div class="slide-counter" id="slide-counter">
+        Slide <strong>1</strong> / 19
+      </div>
+</div>
+</div>
+</div> <!-- End Deck Container -->
+<!-- ==========================================================================
+     INTERACTIVE JAVASCRIPT ENGINE
+     ========================================================================== -->
+<script>
+  // Preserved Authoritative Presenter Notes in Bahasa Indonesia
+  const presenterNotes = [
+    // Slide 1
+    "Dewan Juri yang terhormat, selamat datang dalam presentasi ARES-RX Sentinel: Silicon-Level Trusted Digital Reception Boundary. Proyek ini menghadirkan demarkasi keamanan sirkuit terpadu tingkat silikon pertama di Indonesia untuk melindungi antarmuka penerima radio Sub-GHz 433.92 MHz pada infrastruktur vital nasional dan ekosistem Peruri. Desain ini telah mencapai status Tapeout-Ready pada proses SkyWater 130nm untuk platform Tiny Tapeout TT08, lolos 100% LVS dan 0 pelanggaran aktif DRC. Perlu kami tegaskan di awal, konsumsi daya 57.90 nanowatt pada clock 20 kHz adalah estimasi pasca-layout berbasis beban kerja VCD, bukan hasil ukur silikon fabrikasi karena keping silikon fisik saat ini berstatus pending fabrikasi.",
+    
+    // Slide 2
+    "Pada Slide 2, kita melihat akar permasalahan mendasar: The Demodulator Blind Spot. Pada seluruh penerima RF Sub-GHz komersial, jalur digital serial baseband rx_in terhubung langsung tanpa proteksi ke mikrokontroler host. Akibatnya, software host terpapar pada tiga mode kegagalan fatal: Interrupt Storm yang menguras daya baterai hingga 16.5 mW dan melumpuhkan CPU, Buffer Overflow akibat manipulasi panjang paket yang merusak memori RAM, dan Asynchronous Desynchronization yang menyebabkan korupsi data telemetri secara tersembunyi tanpa disadari software.",
+    
+    // Slide 3
+    "Mengapa solusi konvensional gagal? Slide 3 menyajikan matriks perbandingan 6-sumbu terhadap literatur ilmiah. Software filtering terlalu lambat dan boros daya miliwatt. Hardware bus firewall seperti ARM TrustZone bekerja terlambat di sisi bus setelah data masuk ke RAM. Kriptografi ringan membutuhkan daya puluhan mikrowatt dan rentan serangan denial-of-sleep. Wake-up receiver analog hanya mendeteksi selubung energi tanpa verifikasi sintaksis. ARES-RX Sentinel adalah satu-satunya inovasi yang menyaring sinyal di perbatasan serial fisik, bereaksi dalam 1 siklus clock, tanpa membebani CPU sama sekali, dengan konsumsi daya di bawah 100 nanowatt.",
+    
+    // Slide 4
+    "Keunggulan Sentinel berpijak pada fondasi matematika yang kokoh: Master Trust Equation V_trusted = V_physical AND V_protocol. Kami memetakan interval pulsa kontinu ke dalam jendela diskrit integer pada clock 20 kHz: half-bit 8-10 siklus dan full-bit 16-20 siklus. Pulsa di luar jendela ini—seperti runt glitch <=7 siklus atau mid-band desync 11-15 siklus—langsung divonis tidak sah. FSM pelacak konteks kami memiliki margin temporal 102.3 kali lipat antara ambang batas akhir paket dan jarak jeda antar-frame, menjamin derau squelch dieliminasi tanpa false alarm.",
+    
+    // Slide 5
+    "Kami menguji ketahanan silikon melalui taksonomi 8 vektor serangan siber-fisik AV01 hingga AV08, mencakup gangguan fisik waktu di Layer 1 hingga manipulasi tata bahasa di Layer 2. Dalam 10,737 siklus evaluasi dan 118,107 pemeriksaan sinyal observable, Sentinel mencapai tingkat deteksi sempurna 100.0% dengan tingkat alarm palsu 0.0% pada lalu lintas normal AV00. Setiap serangan dikunci dalam 1 siklus clock dan diisolasi seketika.",
+    
+    // Slide 6
+    "Sebagai solusi komprehensif, ARES-RX Sentinel beroperasi sebagai 'The Silicon Bouncer' di antara demodulator RF dan MCU host. Melalui pendekatan 3-Layer Defence-in-Depth, Layer 1 menyaring integritas pulsa fisik real-time, Layer 2 mengawal tata bahasa paket 192-bit, dan Layer 3 mengeksekusi isolasi fail-closed. Arsitektur ini menjamin zero CPU load, konsumsi daya ultra-rendah 57.90 nanowatt, dan determinisme mutlak.",
+    
+    // Slide 7
+    "Mari kita telaah Layer 1: Temporal Sentinel. Modul ini beroperasi pada sampling 50 mikrodetik. Dilengkapi counter 8-bit dan komparator jendela diskrit, FSM 4-status melacak amplop penerimaan secara cerdas. Derau squelch receiver diredam pada status ARMED, dan pulsa ilegal pada status ACTIVE langsung memicu sinyal temporal_fault dalam 0 siklus clock dari kedatangan edge, membunuh anomali fisik di gerbang terdepan.",
+    
+    // Slide 8
+    "Layer 2: Frame Syntax Monitor bertindak sebagai kurator tata bahasa paket 192-bit. Berjalan otonom dengan pencacah bit mandiri tanpa ketergantungan pada modul legacy, modul ini memverifikasi pola Preamble 32-bit, Type ID ganda 0xD391, dan konstanta keamanan 0x0DFFFFFE secara seketika pada waktu sampel bit pertama tiba. Serangan pemotongan frame (truncation) dan bit liar tambahan (overrun) seketika dijebak pada siklus terjadinya deviasi.",
+    
+    // Slide 9
+    "Benteng eksekusi terakhir adalah Layer 3 Hardware Fail-Closed Isolation. Priority Arbiter memprioritaskan kesalahan fisik Layer 1 di atas Layer 2. Dalam TEPAT 1 siklus clock, Sticky Fault Latch mengunci status bahaya yang tidak bisa di-reset oleh software. Secara kombinatorial murni dengan latensi 0 siklus tambahan (hanya 1.2 nanodetik penundaan gerbang), Zeroization Gate memaksa bus data keluar menjadi 0x00 mutlak dan menyalakan interupsi tamper_alert ke MCU host. Nol payload berbahaya bocor ke memori!",
+    
+    // Slide 10
+    "Slide 10 menyajikan diagram arsitektur sistem lengkap yang di-render langsung oleh Mermaid.js. Terlihat jelas integrasi 4 domain struktural: Physical Baseband Domain, Sentinel Protected Silicon Core, Legacy Demodulator Subsystem, dan Protected Host System Boundary. Alur data dan kontrol berjalan terpisah dan terkawal, mewujudkan proteksi bump-in-the-wire yang transparan.",
+    
+    // Slide 11
+    "Di Slide 11, kami membuktikan kesiapan fisik silikon pada SkyWater 130nm CMOS. Dalam die tile 1x1 berukuran 161 kali 111 mikrometer, kami mengintegrasikan 758 gerbang logika sel standar dengan kerapatan core placement 63.99%. Netgen LVS membuktikan kecocokan struktural 100% sempurna (764 devices, 776 nets), dan Magic DRC bersih 0 active violations. Uji stres timing pada clock 50 MHz membuktikan setup slack +11.88 ns dan hold slack +0.42 ns dengan Fmax mencapai 123.15 MHz.",
+    
+    // Slide 12
+    "Slide 12 merinci anggaran daya dan batasan epistemik. Berdasarkan simulasi pasca-layout OpenSTA dengan beban kerja switching VCD otentik, total konsumsi daya adalah 57.90 nanowatt pada clock 20 kHz. Tambahan overhead keamanan hanya 12.70 nanowatt atau 28.1% di atas baseline, dengan leakage statis hanya 3.10 nanowatt. Ini memungkinkan pengoperasian lebih dari 20 tahun pada satu baterai koin CR2032. Kami tegaskan kembali: 57.90 nW adalah estimasi pasca-layout; pengukuran wafer fisik saat ini berstatus pending fabrikasi TT08.",
+    
+    // Slide 13
+    "Metodologi verifikasi siber-fisik M6 pada Slide 13 membuktikan kausalitas ujung-ke-ujung P->C->B->R dalam lingkungan kernel Linux terisolasi. Menggunakan virtual bridge br_ares dengan injeksi delay stokastik normal 5 ms, kami memvalidasi empat invariant kausal dari paket jaringan UDP, profil transisi kanonik, rekonstruksi baseband, hingga ko-simulasi RTL Verilog sesungguhnya.",
+    
+    // Slide 14
+    "Hasil verifikasi 9 vektor kanonik disajikan secara transparan pada tabel Slide 14. Mulai dari AV00 baseline normal hingga 8 variasi serangan AV01-AV08, seluruh vektor berhasil ditangkap dan diisolasi dengan T_latch tepat 1 siklus dan output bus aman dinolkan ke 0x00. Sebanyak 10,737 siklus clock dievaluasi tanpa satupun perbedaan antara model referensi dan netlist Verilog sintetis.",
+    
+    // Slide 15
+    "Integritas bukti forensik kami dijamin melalui rantai kriptografi SHA-256 pada Slide 15. Setiap rekaman di-hash secara berantai dari genesis hingga menghasilkan Final Ledger Anchor: 6f0d379d749953af6e29737bb7e29aeb99eed0698bd2019269dba63a191733f0. Rantai ini membuktikan bahwa seluruh data pengujian adalah otentik, bebas dari rekayasa kronologis, dan dapat diaudit secara independen oleh siapapun.",
+    
+    // Slide 16
+    "Pada Slide 16, kami merumuskan nilai strategis bagi Peruri dan Indonesia melalui empat pilar: proteksi smart metering nasional (PLN, PAM, PGN), pengamanan pita cukai cerdas dan dokumen sekuritas terhadap radio spoofing, perlindungan logistik nilai tinggi dan brankas pencetakan dengan ketahanan baterai >20 tahun, serta penegakan kedaulatan industri semikonduktor nasional.",
+    
+    // Slide 17
+    "Roadmap hilirisasi 2026-2028 memetakan langkah konkret kami: Fase 1 penyerahan shuttle silikon TT08 dan bring-up laboratorium; Fase 2 uji lapangan pilot project bersama ekosistem logistik dan meteran Peruri; dan Fase 3 komersialisasi hard IP core pada Secure Microcontroller Peruri serta perumusan Standar Nasional Indonesia (SNI/BSSN).",
+    
+    // Slide 18
+    "Sebagai kesimpulan pada Slide 18: ARES-RX Sentinel menghadirkan daya ultra-rendah 57.90 nW, nol beban CPU host, isolasi instan 1 siklus fail-closed, dan bukti forensik matematis 100% terverifikasi. Kami mengajak Dewan Juri dan Pimpinan Peruri untuk melangkah bersama mewujudkan kemandirian teknologi mikroelektronika dan kedaulatan keamanan siber Republik Indonesia!"
+  ];
+
+  let currentSlide = 0;
+  const totalSlides = 19;
+  const slides = document.querySelectorAll('.slide');
+
+  function buildSlideSelect() {
+    const sel = document.getElementById('slide-jump-select');
+    if (!sel || sel.children.length > 1) return; // sudah ada atau tidak ditemukan
+    for (let i = 1; i <= totalSlides; i++) {
+      const slide = document.getElementById('slide-' + i);
+      const title = slide ? (slide.dataset.title || 'Slide ' + i) : 'Slide ' + i;
+      const opt = document.createElement('option');
+      opt.value = i - 1; // 0-indexed to match currentSlide
+      opt.textContent = title;
+      sel.appendChild(opt);
+    }
+  }
+
+  function updateSlideUI() {
+    slides.forEach((slide, idx) => {
+      if (idx === currentSlide) {
+        slide.classList.add('active');
+      } else {
+        slide.classList.remove('active');
+      }
+    });
+
+    // Update Counter
+    document.getElementById('slide-counter').innerHTML = `Slide <strong>${currentSlide + 1}</strong> / ${totalSlides}`;
+
+    // Update Progress Bar
+    const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+    document.getElementById('progress-bar-fill').style.width = `${progressPercent}%`;
+
+    // Update Dropdown
+    const sel = document.getElementById('slide-jump-select');
+    if (sel) sel.value = currentSlide;
+
+    // Update Prev / Next Button disabled states
+    document.getElementById('btn-prev').disabled = (currentSlide === 0);
+    document.getElementById('btn-next').disabled = (currentSlide === totalSlides - 1);
+
+    // Update Presenter Notes
+    document.getElementById('notes-text').textContent = presenterNotes[currentSlide] || "Catatan presenter belum tersedia.";
+  }
+
+  function goToSlide(idx) {
+    if (idx >= 0 && idx < totalSlides) {
+      currentSlide = idx;
+      updateSlideUI();
+    }
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides - 1) {
+      currentSlide++;
+      updateSlideUI();
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateSlideUI();
+    }
+  }
+
+  function toggleNotes() {
+    const drawer = document.getElementById('notes-drawer');
+    drawer.classList.toggle('open');
+  }
+
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn(`Fullscreen error: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  // Keyboard Navigation Listener
+  document.addEventListener('keydown', function(event) {
+    if (['input', 'textarea', 'select'].includes(event.target.tagName.toLowerCase())) return;
+
+    switch(event.key) {
+      case 'ArrowRight':
+      case ' ':
+      case 'PageDown':
+        event.preventDefault();
+        nextSlide();
+        break;
+      case 'ArrowLeft':
+      case 'PageUp':
+        event.preventDefault();
+        prevSlide();
+        break;
+      case 'Home':
+        event.preventDefault();
+        goToSlide(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        goToSlide(totalSlides - 1);
+        break;
+      case 'f':
+      case 'F':
+        event.preventDefault();
+        toggleFullScreen();
+        break;
+      case 'n':
+      case 'N':
+        event.preventDefault();
+        toggleNotes();
+        break;
+      case 'g':
+      case 'G':
+        event.preventDefault();
+        toggleGridMode();
+        break;
+      case '?':
+      case '/': // ? is often Shift+/
+        event.preventDefault();
+        toggleHelpOverlay();
+        break;
+      case 'Escape':
+        const drawer = document.getElementById('notes-drawer');
+        if (drawer.classList.contains('open')) {
+          drawer.classList.remove('open');
+        }
+        document.getElementById('shortcut-overlay').style.display = 'none';
+        const gridOverlayEsc = document.getElementById('grid-overlay');
+        if (gridOverlayEsc) gridOverlayEsc.classList.remove('open');
+        break;
+    }
+  });
+
+  // Touch Swipe Gesture Detection
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
+  const MIN_SWIPE_DISTANCE = 50;
+
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      if (Math.abs(diffX) > MIN_SWIPE_DISTANCE) {
+        if (diffX < 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+      }
+    }
+  }
+
+  function toggleHelpOverlay() {
+    const overlay = document.getElementById('shortcut-overlay');
+    overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  function populateGridOverlay() {
+    let overlay = document.getElementById('grid-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'grid-overlay';
+      document.body.appendChild(overlay);
+    }
+    if (overlay.querySelector('.grid-thumb')) return;
+    for (let i = 1; i <= totalSlides; i++) {
+      const slide = document.getElementById('slide-' + i);
+      const title = slide ? (slide.dataset.title || 'Slide ' + i) : 'Slide ' + i;
+      const btn = document.createElement('button');
+      btn.className = 'grid-thumb' + ((i - 1) === currentSlide ? ' active' : '');
+      btn.innerHTML = `<span class="grid-num">${i}</span><span class="grid-label">${title}</span>`;
+      btn.onclick = () => { goToSlide(i - 1); toggleGridMode(); };
+      overlay.appendChild(btn);
+    }
+  }
+
+  function toggleGridMode() {
+    populateGridOverlay();
+    const gridOverlay = document.getElementById('grid-overlay');
+    if (gridOverlay.classList.contains('open')) {
+      gridOverlay.classList.remove('open');
+    } else {
+      gridOverlay.classList.add('open');
+      // Update active class when opening
+      const thumbs = gridOverlay.querySelectorAll('.grid-thumb');
+      thumbs.forEach((btn, idx) => {
+        btn.className = 'grid-thumb' + (idx === currentSlide ? ' active' : '');
+      });
+    }
+  }
+
+  // Initialization after DOM and Libraries Load
+  window.addEventListener('DOMContentLoaded', () => {
+    buildSlideSelect();
+    updateSlideUI();
+
+    // Initialize KaTeX Auto-Render
+    if (window.renderMathInElement) {
+      try {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError: false
+        });
+      } catch (err) {
+        console.warn('KaTeX render warning:', err);
+      }
+    }
+
+    // Initialize Mermaid
+    if (window.mermaid) {
+      try {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'dark',
+          securityLevel: 'loose',
+          themeVariables: {
+            darkMode: true,
+            background: '#0d1529',
+            primaryColor: '#131f35',
+            primaryTextColor: '#e8f4f8',
+            primaryBorderColor: '#00d4ff',
+            lineColor: '#00d4ff',
+            secondaryColor: '#1a2a47',
+            tertiaryColor: '#0a0f1e',
+            fontSize: '13px'
+          }
+        });
+      } catch (err) {
+        console.warn('Mermaid initialize warning:', err);
+        showMermaidFallback();
+      }
+    } else {
+      showMermaidFallback();
+    }
+  });
+
+  function showMermaidFallback() {
+    const diagramEl = document.getElementById('system-mermaid-diagram');
+    const fallbackEl = document.getElementById('system-mermaid-fallback');
+    if (diagramEl && fallbackEl) {
+      diagramEl.style.display = 'none';
+      fallbackEl.style.display = 'block';
+    }
+  }
+</script>
+
+
+
+<!-- Keyboard Shortcut Overlay -->
+<div id="shortcut-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2001; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+<div style="background: var(--bg-card); border: 1px solid var(--accent-cyan); padding: 2rem; border-radius: 12px; max-width: 400px; color: #fff;">
+<h3 style="color: var(--accent-cyan); margin-bottom: 1rem; text-align: center;">Keyboard Shortcuts</h3>
+<ul style="list-style: none; padding: 0; line-height: 1.8;">
+<li><kbd style="background: #333; padding: 2px 6px; border-radius: 4px;">Right</kbd> / <kbd style="background: #333; padding: 2px 6px; border-radius: 4px;">Space</kbd> : Next Slide</li>
+<li><kbd style="background: #333; padding: 2px 6px; border-radius: 4px;">Left</kbd> : Previous Slide</li>
+<li><kbd style="background: #333; padding: 2px 6px; border-radius: 4px;">N</kbd> : Toggle Presenter Notes</li>
+<li><kbd style="background: #333; padding: 2px 6px; border-radius: 4px;">G</kbd> : Toggle Grid / Overview Mode</li>
+<li><kbd style="background: #333; padding: 2px 6px; border-radius: 4px;">?</kbd> : Toggle this Help Overlay</li>
+</ul>
+<button onclick="document.getElementById('shortcut-overlay').style.display='none'" style="margin-top: 1.5rem; width: 100%; padding: 0.5rem; background: var(--accent-cyan); color: #000; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">Tutup</button>
+</div>
+</div>
+</body>
+</html>
+
