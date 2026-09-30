@@ -46,22 +46,22 @@ module data_multiplex (
   end
 
   serial_decode serial_decode (
-    .reset_n,
-    .clock,
+    .reset_n(reset_n),
+    .clock(clock),
 
-    .serial_clock,
-    .serial_data,
+    .serial_clock(serial_clock),
+    .serial_data(serial_data),
 
-    .full,
+    .full(full),
 
-    .thermostat_id,
-    .room_temp,
-    .set_temp,
+    .thermostat_id(thermostat_id),
+    .room_temp(room_temp),
+    .set_temp(set_temp),
 
-    .state,
-    .tail_1,
-    .tail_2,
-    .tail_3
+    .state(state),
+    .tail_1(tail_1),
+    .tail_2(tail_2),
+    .tail_3(tail_3)
   );
 
 endmodule
