@@ -23,12 +23,13 @@ module tb ();
   reg ena;
 
   // Named input pins
-  reg rx_in;
-  reg halt;
-  reg [3:0] address;
+  reg [7:0] ui_in;
+  reg [7:0] uio_in;
 
-  wire [7:0] ui_in = {address, 1'b0, halt, 1'b0, rx_in};
-  wire [7:0] uio_in = 8'b00000000;
+  // Observation wire aliases for waveform inspection
+  wire rx_in   = ui_in[0];
+  wire halt    = ui_in[2];
+  wire [3:0] address = ui_in[7:4];
   wire [7:0] uo_out;
   wire [7:0] uio_out;
   wire [7:0] uio_oe;

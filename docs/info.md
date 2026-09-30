@@ -44,19 +44,21 @@ $$V_{\text{trusted}} = V_{\text{physical}} \land V_{\text{protocol}}$$
 ## How to Test
 
 ### 1. Nominal Transmission Test
-1. Set `rst_n = 0` for 2 cycles, then release `rst_n = 1`.
-2. Set `halt = 1` (pin `ui_in[2]`).
-3. Stream a nominal 192-bit Manchester frame on `rx_in` (pin `ui_in[0]`) at 20 kHz with preamble `0xAAAAAAAA`.
-4. Observe `reception_active` (pin `uio_out[7]`) asserted high during transmission.
-5. Set `address[3:0]` (pins `ui_in[7:4]`) to read telemetry bytes on `uo_out[7:0]`.
-6. Confirm `tamper_alert` (pin `uio_out[6]`) remains low (`0`).
+1. Set `rst_n = 0` for 10 cycles, then release `rst_n = 1` with `halt = 0` (pin `ui_in[2] = 0`).
+2. Stream a nominal 192-bit Manchester frame on `rx_in` (pin `ui_in[0]`) at 20 kHz with `halt = 0` (preamble `0xAAAAAAAA`, types `0xD391`, constant `0x0DFFFFFE`, dynamic telemetry payload, and trailers).
+3. Observe `reception_active` (pin `uio_out[7]`) asserted high during transmission and returning to low after 64 silence cycles.
+4. Wait $\ge 65$ silence cycles for End-of-Packet (EOP) settling.
+5. Confirm `tamper_alert` (pin `uio_out[6]`) remains low (`0`), verifying zero false alarms.
+6. Set `halt = 1` (pin `ui_in[2] = 1`) to halt demodulation and enable safe parallel readback onto `uo_out[7:0]`.
+7. Iterate `address[3:0]` (pins `ui_in[7:4]`) from `0` to `11` to read all 12 decoded telemetry payload registers (`thermostat_id`, `room_temp`, `set_temp`, `state`, and trailer bytes).
 
 ### 2. Adversarial Glitch Injection Test
-1. While streaming, inject a 4-cycle runt pulse ($200\,\mu\text{s}$) on `rx_in`.
-2. Within 1 clock cycle ($50\,\mu\text{s}$), observe `tamper_alert` (pin `uio_out[6]`) latched high (`1`).
-3. Observe `uo_out[7:0]` immediately zeroized to `0x00` regardless of address selection.
-4. Observe that `tamper_alert` remains asserted even after `rx_in` returns to idle, confirming hardware fail-closed latching.
-5. Apply `rst_n = 0` to clear the security fault state.
+1. Ensure `halt = 0` during active reception. Arm the Layer-1 temporal monitor with a valid half-bit transition ($9$ cycles high, $9$ cycles low).
+2. Inject a 4-cycle runt glitch ($200\,\mu\text{s} < 8$ clock cycles minimum valid half-bit) on `rx_in`.
+3. Within 1 clock cycle ($50\,\mu\text{s}$), observe `tamper_alert` (pin `uio_out[6]`) asserted and sticky-latched high (`1`).
+4. Set `halt = 1` and iterate across all multiplexer read addresses (`address = 0..11`); confirm `uo_out[7:0]` is strictly zeroized to `0x00`, verifying hardware fail-closed isolation.
+5. Observe that `tamper_alert` remains asserted even after `rx_in` returns to idle silence, confirming sticky latch persistence.
+6. Apply `rst_n = 0` to clear the security fault state.
 
 ---
 
@@ -65,12 +67,12 @@ $$V_{\text{trusted}} = V_{\text{physical}} \land V_{\text{protocol}}$$
 | Pin | Type | Signal Name | Description |
 | :--- | :--- | :--- | :--- |
 | `ui_in[0]` | Input | `rx_in` | Demodulated baseband digital input |
-| `ui_in[2]` | Input | `halt` | Output enable / halt control (1 = enabled) |
-| `ui_in[7:4]` | Input | `address[3:0]` | Parallel multiplexer read address |
-| `uo_out[7:0]`| Output| `data_out[7:0]`| Safe parallel output bus (Zeroized on fault) |
+| `ui_in[2]` | Input | `halt` | Demodulator enable & readback control (`halt = 0`: active reception; `halt = 1`: readback output enable) |
+| `ui_in[7:4]` | Input | `address[3:0]` | Parallel multiplexer read address (0..11 valid registers) |
+| `uo_out[7:0]`| Output| `data_out[7:0]`| Safe parallel output bus (Gated by `halt`, zeroized on fault) |
 | `uio_out[0]` | Output| `baseline_full`| Baseline frame complete flag |
 | `uio_out[1]` | Output| `manchester_clock` | Recovered baseband sample clock |
 | `uio_out[2]` | Output| `manchester_data` | Demodulated serial bitstream |
 | `uio_out[3]` | Output| `transmission_begin` | Transmission detect flag |
-| `uio_out[6]` | Output| `tamper_alert` | **Security alarm** (Sticky hardware latch) |
+| `uio_out[6]` | Output| `tamper_alert` | **Security alarm** (Sticky hardware latch, non-maskable) |
 | `uio_out[7]` | Output| `reception_active` | Physical RF envelope active monitor |

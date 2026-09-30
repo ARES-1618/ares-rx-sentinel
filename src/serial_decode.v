@@ -42,15 +42,15 @@ module serial_decode (
   wire valid = &validations;
 
   data_validate data_validate (
-    .preamble,
-    .type_1,
-    .type_2,
-    .constant,
+    .preamble(preamble),
+    .type_1(type_1),
+    .type_2(type_2),
+    .constant(constant),
 
-    .validations
+    .validations(validations)
   );
 
-  assign full = shift_register[96] & preamble_or_data == state_data;
+  assign full = shift_register[96] & (preamble_or_data == state_data);
 
   assign
     thermostat_id   = shift_register[95:64],

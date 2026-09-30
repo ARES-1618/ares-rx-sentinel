@@ -1,0 +1,59 @@
+name: gds
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      build_gds:
+        description: 'Rebuild GDS using Tiny Tapeout OpenLane Action'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    if: ${{ github.event.inputs.build_gds == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build GDS
+        uses: TinyTapeout/tt-gds-action/openlane2@v1.0.3
+
+  precheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          pip install --upgrade pip
+          git clone --depth 1 https://github.com/TinyTapeout/tt-support-tools.git /tmp/tt-support-tools
+          pip install -r /tmp/tt-support-tools/requirements.txt
+
+      - name: Validate TT Project Documentation & Configuration
+        shell: bash
+        run: |
+          python3 /tmp/tt-support-tools/tt_tool.py --check-docs --project-dir .
+
+      - name: Verify Hardened GDS & Deliverables
+        shell: bash
+        run: |
+          echo "=== Verifying TT08 Submission Deliverables ==="
+          test -f gds/tt_um_ares_sentinel_project.gds || { echo "ERROR: GDS missing at gds/tt_um_ares_sentinel_project.gds"; exit 1; }
+          ls -lh gds/tt_um_ares_sentinel_project.gds
+          test -f runs/final/top_routed.def || { echo "ERROR: DEF missing at runs/final/top_routed.def"; exit 1; }
+          ls -lh runs/final/top_routed.def
+          echo "=== All TT08 Submission Deliverables Successfully Verified ==="
