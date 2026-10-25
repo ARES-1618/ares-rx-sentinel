@@ -1,6 +1,6 @@
 /*
- * ARES-RX Sentinel: Layer-2 Frame Syntax Integrity Monitor
- * Module: ares_frame_fsm.v
+ * PRISM-RX Sentinel: Layer-2 Frame Syntax Integrity Monitor
+ * Module: prism_frame_fsm.v
  * Architecture: Autonomous 192-Bit Frame Integrity FSM & Bit-Position Verifier
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
@@ -28,7 +28,7 @@
 
 `default_nettype none
 
-module ares_frame_fsm (
+module prism_frame_fsm (
     input  wire       clk,
     input  wire       rst_n,
 

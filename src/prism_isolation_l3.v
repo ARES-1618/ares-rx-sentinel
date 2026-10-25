@@ -1,6 +1,6 @@
 /*
- * ARES-RX Sentinel: Layer-3 Hardware Fail-Closed Isolation
- * Module: ares_isolation_l3.v
+ * PRISM-RX Sentinel: Layer-3 Hardware Fail-Closed Isolation
+ * Module: prism_isolation_l3.v
  * Architecture: Integrated Layer-3 Enclosure (Fault Latch + Isolation Gate)
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
@@ -8,8 +8,9 @@
 
 `default_nettype none
 
-module ares_isolation_l3 #(
-    parameter integer DATA_WIDTH = 8
+module prism_isolation_l3 #(
+    parameter integer DATA_WIDTH = 8,
+    parameter [31:0]  AUTH_KEY   = 32'h1915_2026 // PRISM Hardware Authorization Key ("PRIS 2026")
 )(
     input  wire                  clk,
     input  wire                  rst_n,
@@ -33,7 +34,9 @@ module ares_isolation_l3 #(
 );
 
     // Instantiate Sticky Fault Latch
-    ares_fault_latch u_fault_latch (
+    prism_fault_latch #(
+        .AUTH_KEY(AUTH_KEY)
+    ) u_fault_latch (
         .clk(clk),
         .rst_n(rst_n),
         .set_fault(temporal_fault),
@@ -43,7 +46,7 @@ module ares_isolation_l3 #(
     );
 
     // Instantiate Combinational Isolation Gate
-    ares_isolation_gate #(
+    prism_isolation_gate #(
         .DATA_WIDTH(DATA_WIDTH)
     ) u_isolation_gate (
         .fault_latched(fault_latched),

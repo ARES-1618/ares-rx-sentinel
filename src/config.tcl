@@ -1,5 +1,5 @@
 # ==============================================================================
-# ARES-RX Sentinel — OpenLane Dual-Mode Configuration Script
+# PRISM-RX Sentinel — OpenLane Dual-Mode Configuration Script
 # Architecture: Tiny Tapeout TT08 & Chip Merah Putih Sandbox Flow
 # Process: SkyWater 130nm (sky130_fd_sc_hd)
 # Tile Size: TT08 1x1 Standard Tile (0 0 161.00 111.52)
@@ -23,16 +23,16 @@ if {[info exists ::env(DESIGN_DIR)] && [file exists $::env(DESIGN_DIR)/user_conf
     source $::env(DESIGN_DIR)/user_config.tcl
 } else {
     # Standalone OpenLane / Chip Merah Putih Sandbox Configuration
-    set ::env(DESIGN_NAME) "tt_um_ares_sentinel_project"
+    set ::env(DESIGN_NAME) "tt_um_prism_sentinel_project"
     set ::env(VERILOG_FILES) "\
-        $script_dir/tt_um_ares_sentinel_project.v \
-        $script_dir/ares_sentinel_top.v \
-        $script_dir/ares_timing_sentinel.v \
-        $script_dir/ares_frame_fsm.v \
-        $script_dir/ares_fault_arbiter.v \
-        $script_dir/ares_fault_latch.v \
-        $script_dir/ares_isolation_gate.v \
-        $script_dir/ares_isolation_l3.v \
+        $script_dir/tt_um_prism_sentinel_project.v \
+        $script_dir/prism_sentinel_top.v \
+        $script_dir/prism_timing_sentinel.v \
+        $script_dir/prism_frame_fsm.v \
+        $script_dir/prism_fault_arbiter.v \
+        $script_dir/prism_fault_latch.v \
+        $script_dir/prism_isolation_gate.v \
+        $script_dir/prism_isolation_l3.v \
         $script_dir/edge_detect.v \
         $script_dir/state_machine.v \
         $script_dir/data_multiplex.v \

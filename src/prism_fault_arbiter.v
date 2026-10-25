@@ -1,6 +1,6 @@
 /*
- * ARES-RX Sentinel: Layer-2/Layer-3 Upstream Fault Priority Arbiter
- * Module: ares_fault_arbiter.v
+ * PRISM-RX Sentinel: Layer-2/Layer-3 Upstream Fault Priority Arbiter
+ * Module: prism_fault_arbiter.v
  * Architecture: Pure Combinational Priority Resolver (L1 Physical > L2 Protocol)
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
@@ -10,13 +10,13 @@
  * 2. Same-Cycle Arbitration Priority:
  *    - Priority 1: Layer-1 Temporal Fault (Physical signal / timing violation)
  *    - Priority 2: Layer-2 Frame Syntax Fault (Protocol structure violation)
- * 3. Cross-Cycle Persistence: Handled downstream by ares_fault_latch.v (M2).
+ * 3. Cross-Cycle Persistence: Handled downstream by prism_fault_latch.v (M2).
  *    Arbitration is strictly same-cycle; latch preserves first-cause across time.
  */
 
 `default_nettype none
 
-module ares_fault_arbiter (
+module prism_fault_arbiter (
     // Layer-1 Fault Inputs (Temporal Sentinel - Highest Priority)
     input  wire       temporal_fault,
     input  wire [2:0] temporal_code,

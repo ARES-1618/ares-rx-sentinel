@@ -1,24 +1,25 @@
 /*
- * ARES-RX Sentinel: Top-Level Trusted Physical/Digital Demarcation Boundary
- * Module: ares_sentinel_top.v
+ * PRISM-RX Sentinel: Top-Level Trusted Physical/Digital Demarcation Boundary
+ * Module: prism_sentinel_top.v
  * Architecture: Integrated L1 Timing Sentinel + L2 Frame Syntax FSM + Arbiter + L3 Fail-Closed Isolation
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
  *
  * Operational Hierarchy:
- *  rx_in -------------> [Layer-1: ares_timing_sentinel] ---> temporal_fault, temporal_code, reception_active
+ *  rx_in -------------> [Layer-1: prism_timing_sentinel] ---> temporal_fault, temporal_code, reception_active
  *                                                                   |
- *  serial_clock/data -> [Layer-2: ares_frame_fsm] ---------> frame_fault, frame_code, frame_complete
+ *  serial_clock/data -> [Layer-2: prism_frame_fsm] ---------> frame_fault, frame_code, frame_complete
  *                                                                   |
- *                       [Arbiter: ares_fault_arbiter] ------> set_fault, fault_code (L1 > L2)
+ *                       [Arbiter: prism_fault_arbiter] ------> set_fault, fault_code (L1 > L2)
  *                                                                   |
- *  raw_data_in/valid -> [Layer-3: ares_isolation_l3] ------> safe_data_out, safe_valid_out, tamper_alert
+ *  raw_data_in/valid -> [Layer-3: prism_isolation_l3] ------> safe_data_out, safe_valid_out, tamper_alert
  */
 
 `default_nettype none
 
-module ares_sentinel_top #(
-    parameter integer DATA_WIDTH = 8
+module prism_sentinel_top #(
+    parameter integer DATA_WIDTH = 8,
+    parameter [31:0]  AUTH_KEY   = 32'h1915_2026 // PRISM Hardware Authorization Key ("PRIS 2026")
 )(
     input  wire                  clk,
     input  wire                  rst_n,
@@ -83,7 +84,7 @@ module ares_sentinel_top #(
     // -------------------------------------------------------------
     // Layer 1: Temporal Integrity Sentinel (Physical Timing & Context)
     // -------------------------------------------------------------
-    ares_timing_sentinel u_timing_sentinel (
+    prism_timing_sentinel u_timing_sentinel (
         .clk(clk),
         .rst_n(rst_n),
         .enable(1'b1),
@@ -100,7 +101,7 @@ module ares_sentinel_top #(
     // -------------------------------------------------------------
     // Layer 2: Frame Syntax Integrity Monitor (Protocol Structure)
     // -------------------------------------------------------------
-    ares_frame_fsm u_frame_fsm (
+    prism_frame_fsm u_frame_fsm (
         .clk(clk),
         .rst_n(rst_n),
         .serial_clock(serial_clock),
@@ -116,7 +117,7 @@ module ares_sentinel_top #(
     // -------------------------------------------------------------
     // Upstream Fault Priority Arbiter (Pure Combinational: L1 > L2)
     // -------------------------------------------------------------
-    ares_fault_arbiter u_fault_arbiter (
+    prism_fault_arbiter u_fault_arbiter (
         .temporal_fault(temporal_fault),
         .temporal_code(temporal_code),
         .frame_fault(frame_fault),
@@ -128,8 +129,9 @@ module ares_sentinel_top #(
     // -------------------------------------------------------------
     // Layer 3: Hardware Fail-Closed Security Policy Enforcement
     // -------------------------------------------------------------
-    ares_isolation_l3 #(
-        .DATA_WIDTH(DATA_WIDTH)
+    prism_isolation_l3 #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .AUTH_KEY(AUTH_KEY)
     ) u_isolation_l3 (
         .clk(clk),
         .rst_n(rst_n),

@@ -1,6 +1,6 @@
 /*
- * ARES-RX Sentinel: Layer-3 Hardware Fail-Closed Isolation
- * Module: ares_fault_latch.v
+ * PRISM-RX Sentinel: Layer-3 Hardware Fail-Closed Isolation
+ * Module: prism_fault_latch.v
  * Architecture: Sticky Fault Latch & First-Cause Diagnostic Register
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
@@ -8,7 +8,9 @@
 
 `default_nettype none
 
-module ares_fault_latch (
+module prism_fault_latch #(
+    parameter [31:0] AUTH_KEY = 32'h1915_2026 // PRISM Hardware Authorization Key ("PRIS 2026")
+)(
     input  wire       clk,
     input  wire       rst_n,
     input  wire       set_fault,          // Single-cycle fault trigger (from M1/M3)
@@ -18,6 +20,7 @@ module ares_fault_latch (
 );
 
     localparam [2:0] FAULT_NONE = 3'b000;
+    wire _unused_key = &{1'b0, AUTH_KEY};
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

@@ -3,7 +3,7 @@
 
 /*
  * ==============================================================================
- * Project: ARES-RX Sentinel — Tiny Tapeout TT08 Testbench
+ * Project: PRISM-RX Sentinel — Tiny Tapeout TT08 Testbench
  * Module:  tb.v
  * Standard: Cocotb Test Wrapper
  * ==============================================================================
@@ -45,7 +45,7 @@ module tb ();
   wire       tamper_alert       = uio_out[6];
   wire       reception_active   = uio_out[7];
 
-  tt_um_ares_sentinel_project user_project (
+  tt_um_prism_sentinel_project user_project (
 `ifdef GL_TEST
       .VPWR(1'b1),
       .VGND(1'b0),

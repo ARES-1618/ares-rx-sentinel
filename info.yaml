@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
-  title:        "ARES-RX Sentinel: Hardware Receiver Security Guard"
-  author:       "ARES Semiconductor Technology"
+  title:        "PRISM-RX Sentinel: Hardware Receiver Security Guard"
+  author:       "PRISM (Prototype, Research and Integration of System & Microarchitecture)"
   discord:      ""
   description:  "Temporal & syntactic integrity verification with fail-closed hardware isolation for 433MHz receivers"
   language:     "Verilog"
@@ -11,18 +11,18 @@ project:
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_ares_sentinel_project"
+  top_module:  "tt_um_prism_sentinel_project"
 
   # List your project's source files here. Source files must be in ./src and you must list each source file separately, one per line:
   source_files:
-    - "tt_um_ares_sentinel_project.v"
-    - "ares_sentinel_top.v"
-    - "ares_timing_sentinel.v"
-    - "ares_frame_fsm.v"
-    - "ares_fault_arbiter.v"
-    - "ares_fault_latch.v"
-    - "ares_isolation_gate.v"
-    - "ares_isolation_l3.v"
+    - "tt_um_prism_sentinel_project.v"
+    - "prism_sentinel_top.v"
+    - "prism_timing_sentinel.v"
+    - "prism_frame_fsm.v"
+    - "prism_fault_arbiter.v"
+    - "prism_fault_latch.v"
+    - "prism_isolation_gate.v"
+    - "prism_isolation_l3.v"
     - "edge_detect.v"
     - "state_machine.v"
     - "data_multiplex.v"

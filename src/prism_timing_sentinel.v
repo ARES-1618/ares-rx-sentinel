@@ -1,6 +1,6 @@
 /*
- * ARES-RX Sentinel: Layer-1 Temporal Integrity Sentinel
- * Module: ares_timing_sentinel.v
+ * PRISM-RX Sentinel: Layer-1 Temporal Integrity Sentinel
+ * Module: prism_timing_sentinel.v
  * Architecture: Reception Context Controller & Deferred Fault Classification
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
@@ -8,7 +8,7 @@
 
 `default_nettype none
 
-module ares_timing_sentinel #(
+module prism_timing_sentinel #(
     parameter integer HB_MIN      = 8,   // 400 us (Empirical half-bit min)
     parameter integer HB_MAX      = 10,  // 500 us (Empirical half-bit max)
     parameter integer BIT_MIN     = 16,  // 800 us (Empirical full-bit min)

@@ -1,6 +1,6 @@
 /*
- * ARES-RX Sentinel: Layer-3 Hardware Fail-Closed Isolation
- * Module: ares_isolation_gate.v
+ * PRISM-RX Sentinel: Layer-3 Hardware Fail-Closed Isolation
+ * Module: prism_isolation_gate.v
  * Architecture: Pure Combinational Zeroization & Tamper Alert Gate
  * Target: Tiny Tapeout TT07/TT08 SkyWater 130nm ASIC
  * Standard: IEEE 1364-2005 Synthesizable Verilog
@@ -8,7 +8,7 @@
 
 `default_nettype none
 
-module ares_isolation_gate #(
+module prism_isolation_gate #(
     parameter integer DATA_WIDTH = 8
 )(
     input  wire                  fault_latched,  // Sticky fault state from latch

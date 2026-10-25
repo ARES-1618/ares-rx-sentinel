@@ -1,13 +1,13 @@
 /*
  * ==============================================================================
- * Project: ARES-RX Sentinel — Trusted Physical/Digital Demarcation Boundary
- * Module:  tt_um_ares_sentinel_project
+ * Project: PRISM-RX Sentinel — Trusted Physical/Digital Demarcation Boundary
+ * Module:  tt_um_prism_sentinel_project
  * Standard: Tiny Tapeout TT08 (SkyWater 130nm ASIC — sky130_fd_sc_hd)
  * Authority: Technical Architect / Research Direction
  *
  * Description:
  *   Top-level ASIC perimeter wrapper integrating the protected Sentinel
- *   subsystem (ares_sentinel_top.v) with the baseline Manchester receiver
+ *   subsystem (prism_sentinel_top.v) with the baseline Manchester receiver
  *   core (tt07-bep-decode). Provides physical pin mapping to Tiny Tapeout
  *   tile IOs, fail-closed safe data outputs, and dedicated telemetry pins.
  * ==============================================================================
@@ -15,7 +15,7 @@
 
 `default_nettype none
 
-module tt_um_ares_sentinel_project (
+module tt_um_prism_sentinel_project (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs (Gated Safe Parallel Out)
     input  wire [7:0] uio_in,   // IOs: Bidirectional input path
@@ -34,7 +34,7 @@ module tt_um_ares_sentinel_project (
     //                      -> Demodulator / Comparator IC
     //                      -> Demodulated Digital Baseband Signal (rx_digital)
     //                      -> Tiny Tapeout Dedicated Digital Input ui_in[0]
-    //                      -> ARES-RX Sentinel Perimeter & Demodulator Core
+    //                      -> PRISM-RX Sentinel Perimeter & Demodulator Core
     //
     // ui_in[0] is strictly a digital CMOS GPIO input, NOT an RF antenna port.
     wire rx_digital = ui_in[0];         // Demodulated baseband digital RX input
@@ -108,8 +108,11 @@ module tt_um_ares_sentinel_project (
     // --------------------------------------------------------------------------
     // Integrated Sentinel Demarcation Subsystem (Layer 1 + 2 + Arbiter + 3)
     // --------------------------------------------------------------------------
-    ares_sentinel_top #(
-        .DATA_WIDTH(8)
+    localparam [31:0] AUTH_KEY = 32'h1915_2026; // PRISM Hardware Authorization Key ("PRIS 2026")
+
+    prism_sentinel_top #(
+        .DATA_WIDTH(8),
+        .AUTH_KEY(AUTH_KEY)
     ) u_sentinel_top (
         .clk(clk),
         .rst_n(rst_n),

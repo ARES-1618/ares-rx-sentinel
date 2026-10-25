@@ -1,7 +1,7 @@
 # ==============================================================================
-# ARES-RX Sentinel — Authoritative Production .gitignore
-# System & Organization: ARES SEMIKONDUKTOR TECHNOLOGY
-# Upstream Repository: https://github.com/ARES-1618/ares-rx-sentinel.git
+# PRISM-RX Sentinel — Authoritative Production .gitignore
+# System & Organization: PRISM (Prototype, Research and Integration of System & Microarchitecture)
+# Upstream Repository: https://github.com/PRISM-1618/prism-rx-sentinel.git
 # ==============================================================================
 
 # --- Quarantine & Archive Directories ---
@@ -18,6 +18,8 @@
 *.lxt2
 *.vvp
 a.out
+results.xml
+sim_build/
 
 # --- Physical Extraction Scratch Artifacts ---
 *.ext
@@ -62,7 +64,13 @@ Thumbs.db
 08_Slides/
 build_docx_deliverables.py
 verify_publication_consistency.py
-ARES_Publication_Consistency_Audit.md
+PRISM_Publication_Consistency_Audit.md
 Makefile
 push_to_github.bat
+scripts/
+goal/
+teamwork-preview/
+boost/
+docs/PROPOSAL*
+docs/figures/
 

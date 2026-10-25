@@ -1,4 +1,4 @@
-# ARES-RX Sentinel — Tiny Tapeout TT08 Hardware Security Boundary
+# PRISM-RX Sentinel — Tiny Tapeout TT08 Hardware Security Boundary
 
 [![Tiny Tapeout](https://img.shields.io/badge/Tiny%20Tapeout-TT08-blue)](https://tinytapeout.com)
 [![PDK](https://img.shields.io/badge/PDK-SkyWater%20130nm-green)](https://github.com/google/skywater-pdk)
@@ -11,9 +11,9 @@
 
 ## 1. Title and System Identification
 
-* **Project Title:** ARES-RX Sentinel: Hardware Receiver Security Guard
+* **Project Title:** PRISM-RX Sentinel: Hardware Receiver Security Guard
 * **Submission Target:** Tiny Tapeout TT08 Shuttle (SkyWater 130nm `sky130_fd_sc_hd` standard cell library)
-* **Top Module:** `tt_um_ares_sentinel_project`
+* **Top Module:** `tt_um_prism_sentinel_project`
 * **Silicon Commit:** `a748738cf665e63bc9c215748ee5bead18422665` (Tree: `4bd810d39c4968e376843287a277080976e337bc`)
 * **Primary Provenance:** Work Order `WO-2026-M5F-AUDIT-002` / Dossier `WO-2026-M6-QC-012`
 
@@ -21,16 +21,16 @@
 
 ## 2. Description and Security Rationale
 
-The **ARES-RX Sentinel** is a synthesizable Verilog hardware security perimeter designed to protect 433 MHz Sub-GHz RF receivers (such as remote keyless entry, critical infrastructure telemetry, and secure industrial transceivers) against physical-layer baseband glitches, clock desynchronization, and malformed frame injection attacks. Conventional receiver architectures rely on microcontrollers or firmware running software protocol parsers; when subjected to adversarial baseband glitching or corrupted preambles, these software parsers suffer from catastrophic failure modes including interrupt storms, buffer overflows, and state machine lockups. ARES-RX Sentinel intercepts raw demodulated digital baseband signals directly at the digital CMOS boundary before they can reach the host application processor. By enforcing a dual-condition hardware verification formulation ($V_{\text{trusted}} = V_{\text{physical}} \land V_{\text{protocol}}$) in deterministic silicon logic, Sentinel guarantees that any physical timing anomaly or protocol syntax violation triggers a fail-closed hardware isolation gate within 1 clock cycle ($50.0\,\mu\text{s}$ at 20 kHz nominal clock, with an estimated $\approx 1.2\,\text{ns}$ physical combinational path), zeroizing the output bus and asserting a non-maskable sticky tamper alert to safeguard downstream systems.
+The **PRISM-RX Sentinel** is a synthesizable Verilog hardware security perimeter designed to protect 433 MHz Sub-GHz RF receivers (such as remote keyless entry, critical infrastructure telemetry, and secure industrial transceivers) against physical-layer baseband glitches, clock desynchronization, and malformed frame injection attacks. Conventional receiver architectures rely on microcontrollers or firmware running software protocol parsers; when subjected to adversarial baseband glitching or corrupted preambles, these software parsers suffer from catastrophic failure modes including interrupt storms, buffer overflows, and state machine lockups. PRISM-RX Sentinel intercepts raw demodulated digital baseband signals directly at the digital CMOS boundary before they can reach the host application processor. By enforcing a dual-condition hardware verification formulation ($V_{\text{trusted}} = V_{\text{physical}} \land V_{\text{protocol}}$) in deterministic silicon logic, Sentinel guarantees that any physical timing anomaly or protocol syntax violation triggers a fail-closed hardware isolation gate within 1 clock cycle ($50.0\,\mu\text{s}$ at 20 kHz nominal clock, with an estimated $\approx 1.2\,\text{ns}$ physical combinational path), zeroizing the output bus and asserting a non-maskable sticky tamper alert to safeguard downstream systems.
 
 ---
 
 ## 3. Architecture Overview
 
-ARES-RX Sentinel implements a **3-layer defence-in-depth** hardware pipeline between the external digital baseband demodulator and the downstream host microcontroller interface:
+PRISM-RX Sentinel implements a **3-layer defence-in-depth** hardware pipeline between the external digital baseband demodulator and the downstream host microcontroller interface:
 
 ```text
-                                  ARES-RX SENTINEL
+                                 PRISM-RX SENTINEL
                      Demodulated Digital Baseband Security Guard
                      
      +-----------------------------------------------------------------------+
@@ -40,7 +40,7 @@ ARES-RX Sentinel implements a **3-layer defence-in-depth** hardware pipeline bet
                                           |
                                           v
      +=======================================================================+
-     | LAYER 1: TEMPORAL SENTINEL (ares_timing_sentinel.v)                   |
+     | LAYER 1: TEMPORAL SENTINEL (prism_timing_sentinel.v)                  |
      |  - Pulse duration & interval counter (20 kHz sampling clock)          |
      |  - Runt Glitch Detection: Pulse width N <= 7 clock cycles             |
      |  - Mid-Band Desync Detection: 11 <= N <= 15 clock cycles              |
@@ -49,7 +49,7 @@ ARES-RX Sentinel implements a **3-layer defence-in-depth** hardware pipeline bet
                                           | Valid Transitions
                                           v
      +=======================================================================+
-     | LAYER 2: FRAME SYNTAX MONITOR FSM (ares_frame_fsm.v)                  |
+     | LAYER 2: FRAME SYNTAX MONITOR FSM (prism_frame_fsm.v)                 |
      |  - Preamble Sync Lock: Strict 32-bit alternating pattern (0xAAAAAAAA) |
      |  - Protocol Type Identifier: Enforces mandatory Type ID (0xD391)      |
      |  - Constant Header Verification: Validates fixed field (0x0DFFFFFE)   |
@@ -63,7 +63,7 @@ ARES-RX Sentinel implements a **3-layer defence-in-depth** hardware pipeline bet
      +=======================================================================+
      | LAYER 3: FAIL-CLOSED ISOLATION SUBSYSTEM                              |
      |  [Priority Fault Arbiter & Sticky Hardware Latch]                     |
-     |  (ares_fault_arbiter.v, ares_fault_latch.v, ares_isolation_gate.v)    |
+     |  (prism_fault_arbiter.v, prism_fault_latch.v, prism_isolation_gate.v) |
      |                                                                       |
      |  +-----------------------------------------------------------------+  |
      |  | Deterministic 1-Cycle Fault Latch (T_latch = 1 cycle / 50.0 us) |  |
@@ -82,13 +82,13 @@ ARES-RX Sentinel implements a **3-layer defence-in-depth** hardware pipeline bet
 
 ### Layer-by-Layer Functional Description
 
-* **Layer 1: Temporal Sentinel (`ares_timing_sentinel.v`):**  
+* **Layer 1: Temporal Sentinel (`prism_timing_sentinel.v`):**  
   Layer 1 continuously monitors the raw digital baseband stream on `ui_in[0]`, measuring every pulse duration and inter-edge interval using a calibrated counter clocked at 20 kHz. It traps physical anomalies including high-frequency runt glitches ($N \le 7$ cycles), mid-band desynchronization pulses ($11 \le N \le 15$ cycles), and missing-edge transmission dropouts ($N \ge 21$ cycles). By discarding timing deviations before baseband decoding occurs, Layer 1 shields downstream logic from clock recovery corruption and physical injection attacks.
 
-* **Layer 2: Frame Syntax Monitor FSM (`ares_frame_fsm.v`):**  
+* **Layer 2: Frame Syntax Monitor FSM (`prism_frame_fsm.v`):**  
   Layer 2 enforces strict protocol grammar on the Manchester-decoded bitstream through a deterministic state machine. It validates the mandatory 32-bit preamble sequence (`0xAAAAAAAA`), extracts frame synchronization, validates the 16-bit protocol Type Identifier (`0xD391`), checks the 32-bit constant header field (`0x0DFFFFFE`), and guards exact 192-bit frame length boundaries. Any syntactic error, header corruption, premature truncation underflow ($<192$ bits), or payload overrun overflow ($>192$ bits) triggers an immediate transition into a non-recoverable error trap state.
 
-* **Layer 3: Fail-Closed Isolation Subsystem (`ares_fault_arbiter.v`, `ares_fault_latch.v`, `ares_isolation_gate.v`, `ares_isolation_l3.v`):**  
+* **Layer 3: Fail-Closed Isolation Subsystem (`prism_fault_arbiter.v`, `prism_fault_latch.v`, `prism_isolation_gate.v`, `prism_isolation_l3.v`):**  
   Layer 3 arbitrates concurrent fault signals, latches detected violations into sticky hardware registers, and manages output bus quarantine. When any Layer 1 or Layer 2 fault is detected, the subsystem latches the fault within exactly 1 clock cycle ($50.0\,\mu\text{s}$) and combinational gates immediately clamp the 8-bit parallel output bus (`uo_out[7:0]`) to `0x00`. Concurrently, it asserts the dedicated active-high `tamper_alert` pin (`uio_out[6]`), which remains persistently locked until an explicit external hardware reset (`rst_n`) is applied.
 
 ---
@@ -121,7 +121,7 @@ All physical layout metrics and power estimates are derived from sign-off post-r
 To maintain absolute epistemic integrity across all documentation layers, the discrepancy between the power figure reported in `docs/info.md` and this technical README is reconciled as follows:
 
 * **Authoritative Operating Point (Scenario B — 57.90 nW):**  
-  Documented in `05_ASIC_Synthesis/results/power_reconciliation.md` (`ARES-ASIC-M5F-PWR-001`, Work Order `WO-2026-M5F-AUDIT-002`). This figure is derived by applying authentic post-route VCD switching activity traces (`ares_sentinel_integrated.vcd`, 16,695 cycles) through OpenSTA. The empirical toggle rate on `rx_in` is $\alpha = 0.1418$ transitions/cycle ($\alpha_{\text{prob}} = 0.0709$, duty cycle = 0.50).
+  Documented in `05_ASIC_Synthesis/results/power_reconciliation.md` (`PRISM-ASIC-M5F-PWR-001`, Work Order `WO-2026-M5F-AUDIT-002`). This figure is derived by applying authentic post-route VCD switching activity traces (`prism_sentinel_integrated.vcd`, 16,695 cycles) through OpenSTA. The empirical toggle rate on `rx_in` is $\alpha = 0.1418$ transitions/cycle ($\alpha_{\text{prob}} = 0.0709$, duty cycle = 0.50).
   * Sequential Dynamic Power: $12.0\,\text{nW}$ ($20.7\%$)
   * Combinational Dynamic Power: $42.8\,\text{nW}$ ($73.9\%$)
   * Dynamic Switching Total: $54.8\,\text{nW}$ ($94.7\%$)
@@ -253,7 +253,7 @@ make GATES=yes
 
 ## 7. M6 Cyber-Physical Evidence Summary
 
-ARES-RX Sentinel has completed comprehensive pre-silicon cyber-physical / RTL co-simulation demonstrator verification documented in dossier `WO-2026-M6-QC-012` and sealed in the immutable M6 Evidence Package.
+PRISM-RX Sentinel has completed comprehensive pre-silicon cyber-physical / RTL co-simulation demonstrator verification documented in dossier `WO-2026-M6-QC-012` and sealed in the immutable M6 Evidence Package.
 
 * **Final Execution Run ID:** `WO011R1-FINAL-20260927-225358`
 * **Test Platform:** Isolated Linux network namespace (`netem`) pre-silicon baseband stream generator linked to cycle-accurate RTL co-simulation.
@@ -301,7 +301,7 @@ Automated verification of the submission repository is tracked via GitHub Action
 
 ## 9. Epistemic Boundary
 
-To guarantee scientific rigor, audit transparency, and prevent misinterpretation, the following epistemic boundaries are established for all claims regarding ARES-RX Sentinel:
+To guarantee scientific rigor, audit transparency, and prevent misinterpretation, the following epistemic boundaries are established for all claims regarding PRISM-RX Sentinel:
 
 1. **TT08 Silicon Fabrication Status: PENDING**  
    The physical layout (GDSII, DEF, SPEF) and synthesizable Verilog source files are frozen, validated, and sealed. However, physical wafer manufacturing by SkyWater Technology under the Tiny Tapeout TT08 shuttle is **PENDING**. No physical silicon chips currently exist.
@@ -310,7 +310,7 @@ To guarantee scientific rigor, audit transparency, and prevent misinterpretation
    No fabricated silicon chips have been packaged or bench-tested. Any laboratory measurement of physical chip power is strictly **NOT AVAILABLE**.
 
 3. **Nature of Power Figures ($57.90\,\text{nW}$ vs $50.90\,\text{nW}$):**  
-   The primary power metric of **$57.90\,\text{nW}$** at 20 kHz is an **authoritative post-route VCD-workload-derived power estimate** generated by OpenSTA using switching activity from simulated authentic frame workloads (`ares_sentinel_integrated.vcd`). This is not a fabricated-silicon power measurement. The secondary figure of **$50.90\,\text{nW}$** is a static activity sweep estimate ($\alpha = 0.075$) preserved in the sealed `docs/info.md` file for Tiny Tapeout portal compliance.
+   The primary power metric of **$57.90\,\text{nW}$** at 20 kHz is an **authoritative post-route VCD-workload-derived power estimate** generated by OpenSTA using switching activity from simulated authentic frame workloads (`prism_sentinel_integrated.vcd`). This is not a fabricated-silicon power measurement. The secondary figure of **$50.90\,\text{nW}$** is a static activity sweep estimate ($\alpha = 0.075$) preserved in the sealed `docs/info.md` file for Tiny Tapeout portal compliance.
 
 4. **Scope of M6 Cyber-Physical Evidence:**  
    The M6 evidence package confirms 100.0% concordance across 9 canonical attack vectors within an isolated Linux network namespace emulating baseband packet transport. This represents **bounded empirical verification** of digital RTL and gate-level logic behavior. It does not model analog RF propagation, antenna impedance mismatch, environmental thermal noise, or long-term semiconductor aging.

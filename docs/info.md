@@ -1,28 +1,28 @@
-# ARES-RX Sentinel: Silicon-Level Trusted Digital Reception Boundary
+# PRISM-RX Sentinel: Silicon-Level Trusted Digital Reception Boundary
 
 ## How It Works
 
-ARES-RX Sentinel is a first-in-class, silicon-level hardware security boundary designed to protect edge microcontrollers and Sub-GHz RF receivers (e.g. 433.92 MHz ISM Band) against physical baseband glitches, clock desynchronization, and malformed frame injection attacks.
+PRISM-RX Sentinel is a first-in-class, silicon-level hardware security boundary designed to protect edge microcontrollers and Sub-GHz RF receivers (e.g. 433.92 MHz ISM Band) against physical baseband glitches, clock desynchronization, and malformed frame injection attacks.
 
-Unlike software-based packet validators that execute on a host CPU and are susceptible to buffer overflows or denial-of-service interrupt storms, ARES-RX Sentinel enforces physical and syntactic trust directly at the digital baseband boundary in discrete silicon logic before data touches host memory.
+Unlike software-based packet validators that execute on a host CPU and are susceptible to buffer overflows or denial-of-service interrupt storms, PRISM-RX Sentinel enforces physical and syntactic trust directly at the digital baseband boundary in discrete silicon logic before data touches host memory.
 
 It enforces a dual-condition mathematical trust formulation:
 $$V_{\text{trusted}} = V_{\text{physical}} \land V_{\text{protocol}}$$
 
 ### 3-Layer Defense-in-Depth Architecture:
-1. **Layer 1: Temporal Integrity Sentinel (`ares_timing_sentinel.v`)**
+1. **Layer 1: Temporal Integrity Sentinel (`prism_timing_sentinel.v`)**
    - Continuously measures pulse durations on `rx_in` using a 20 kHz nominal clock ($T_{\text{clk}} = 50.0\,\mu\text{s}$).
    - Validates that half-bit ($N_{\text{HB}} \in [8..10]$ cycles) and full-bit ($N_{\text{BIT}} \in [16..20]$ cycles) Manchester intervals conform to strict physical bounds.
    - Rejects runt glitches ($N \le 7$ cycles), mid-band desync ($11 \le N \le 15$ cycles), and missing-edge timeouts ($N \ge 21$ cycles).
    - Tracks reception envelope (`reception_active`) and qualifies End-of-Packet ($N_{\text{EOF}} = 64$ silence cycles).
 
-2. **Layer 2: Frame Syntax Monitor (`ares_frame_fsm.v`)**
+2. **Layer 2: Frame Syntax Monitor (`prism_frame_fsm.v`)**
    - Autonomous bit counter ($0 \dots 191$) synchronous to the demodulator sample clock.
    - On-the-fly verification of static fields: Preamble (`32'hAAAAAAAA`), Type 1/2 (`16'hD391`), and Protocol Constant (`32'h0DFFFFFE`).
    - Dynamic payload passthrough (bits 96..167 for Thermostat ID and temperature telemetry).
    - Traps frame truncation and post-192-bit frame overrun attacks.
 
-3. **Layer 3: Hardware Fail-Closed Isolation (`ares_isolation_l3.v`)**
+3. **Layer 3: Hardware Fail-Closed Isolation (`prism_isolation_l3.v`)**
    - Upstream priority arbiter resolves same-cycle faults ($L1 > L2$).
    - Asynchronous sticky fault latch preserves first-cause error state.
    - High-speed combinational zeroization gate forces the output data bus to `8'h00` within exactly **1 clock cycle**.

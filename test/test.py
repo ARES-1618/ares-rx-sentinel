@@ -1,3 +1,7 @@
+"""
+PRISM-RX Sentinel Hardware Security Verification Suite
+Standard: Cocotb Testbench for Tiny Tapeout TT08
+"""
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
@@ -95,11 +99,11 @@ async def test_nominal_transmission(dut):
         assert val == exp_val, f"Register mismatch at address {addr}: expected 0x{exp_val:02X}, got 0x{val:02X}"
 
     assert get_tamper_alert(dut) == 0, "tamper_alert asserted after frame readback!"
-    dut._log.info("Nominal transmission test passed: all 12 registers verified, tamper_alert = 0")
+    dut._log.info("PRISM-RX Sentinel nominal transmission test passed: all 12 registers verified, tamper_alert = 0")
 
 @cocotb.test()
 async def test_runt_glitch_rejection(dut):
-    """Test 2: Verify deterministic fail-closed trap on runt pulse and zeroization when halt = 1."""
+    """Test 2: Verify PRISM-RX Sentinel deterministic fail-closed trap on runt pulse and zeroization when halt = 1."""
     await setup_dut(dut)
 
     # Arming pulse to transition Layer-1 Sentinel from IDLE -> ARMED -> ACTIVE (halt = 0)
@@ -128,4 +132,67 @@ async def test_runt_glitch_rejection(dut):
 
     # Confirm tamper_alert remains sticky high
     assert get_tamper_alert(dut) == 1, "tamper_alert unexpectedly cleared after readback!"
-    dut._log.info("Runt glitch rejection test passed: tamper_alert = 1 sticky, uo_out = 0x00 across all addresses with halt = 1")
+    dut._log.info("PRISM-RX Sentinel runt glitch rejection test passed: tamper_alert = 1 sticky, uo_out = 0x00 across all addresses with halt = 1")
+
+@cocotb.test()
+async def test_midband_desync_rejection(dut):
+    """Test 3: Verify PRISM-RX Sentinel deterministic fail-closed trap on mid-band desync pulse (11-15 cycles)."""
+    await setup_dut(dut)
+
+    # Arming pulse to transition Layer-1 Sentinel from IDLE -> ARMED -> ACTIVE (halt = 0)
+    dut.ui_in.value = 1
+    await ClockCycles(dut.clk, 9)
+    dut.ui_in.value = 0
+    await ClockCycles(dut.clk, 9)
+
+    # Inject 13-cycle mid-band pulse (11 <= N <= 15 cycles)
+    dut.ui_in.value = 1
+    await ClockCycles(dut.clk, 13)
+    dut.ui_in.value = 0
+
+    # Wait 3 clock cycles for edge detection -> timing classifier -> sticky fault latch pipeline
+    await ClockCycles(dut.clk, 3)
+
+    # Verify sticky latching of tamper_alert == 1
+    tamper = get_tamper_alert(dut)
+    assert tamper == 1, f"Security breach: tamper_alert failed to latch on midband desync! (got {tamper})"
+
+    # Verify zeroization of uo_out when halt = 1 across all multiplexer addresses
+    for addr in range(12):
+        dut.ui_in.value = (addr << 4) | (1 << 2)
+        await ClockCycles(dut.clk, 2)
+        assert int(dut.uo_out.value) == 0, f"Fail-closed failure at address {addr}: parallel bus not zeroized! got: {dut.uo_out.value}"
+
+    assert get_tamper_alert(dut) == 1, "tamper_alert unexpectedly cleared after readback!"
+    dut._log.info("PRISM-RX Sentinel mid-band desync rejection test passed: tamper_alert = 1 sticky, uo_out = 0x00 across all addresses")
+
+@cocotb.test()
+async def test_preamble_corruption_rejection(dut):
+    """Test 4: Verify PRISM-RX Sentinel traps corrupted preamble bit and zeroizes parallel output."""
+    await setup_dut(dut)
+
+    # Valid nominal frame preamble starts with 32'hAAAAAAAA (bits: 1, 0, 1, 0, ...)
+    # Corrupt bit 0: send 0 instead of 1
+    nominal_hex = "aaaaaaaad391d3910dfffffe03391f8900f600b50094ae16"
+    nominal_bits = [int(b) for b in bin(int(nominal_hex, 16))[2:].zfill(192)]
+    nominal_bits[0] = 0  # Invert first bit
+
+    for bit in nominal_bits:
+        await send_manchester_bit(dut, bit)
+
+    # Wait 65 silence cycles
+    dut.ui_in.value = 0
+    await ClockCycles(dut.clk, 65)
+
+    # Inverted preamble bit should trigger Layer 2 frame syntax fault and set tamper_alert
+    tamper = get_tamper_alert(dut)
+    assert tamper == 1, f"Security breach: tamper_alert failed to latch on preamble corruption! (got {tamper})"
+
+    # Verify zeroization of uo_out when halt = 1 across all multiplexer addresses
+    for addr in range(12):
+        dut.ui_in.value = (addr << 4) | (1 << 2)
+        await ClockCycles(dut.clk, 2)
+        assert int(dut.uo_out.value) == 0, f"Fail-closed failure at address {addr}: parallel bus not zeroized! got: {dut.uo_out.value}"
+
+    assert get_tamper_alert(dut) == 1, "tamper_alert unexpectedly cleared after readback!"
+    dut._log.info("PRISM-RX Sentinel preamble corruption rejection test passed: tamper_alert = 1 sticky, uo_out = 0x00 across all addresses")
