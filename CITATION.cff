@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "PRISM-RX Sentinel: Pre-Demodulation Baseband Hardware Security Boundary on SkyWater 130nm (Tiny Tapeout TT08)"
+message: "If you use this RTL design, formal/simulation verification suite, or silicon power characterization artifacts in your research, please cite this repository."
+type: software
+authors:
+  - family-names: "Wibisono"
+    given-names: "Ahmad Rifa'i"
+    orcid: "https://orcid.org/0009-0001-0120-5791"
+    affiliation: "Universitas Muhammadiyah Prof. DR. HAMKA (UHAMKA)"
+repository-code: "https://github.com/ARES-1618/ares-rx-sentinel"
+license: "Apache-2.0"
+keywords:
+  - "Hardware Security"
+  - "Tiny Tapeout"
+  - "SkyWater 130nm"
+  - "ASIC"
+  - "Baseband Glitch Protection"
+  - "Sub-GHz RF Receiver"
+  - "Verilog"
